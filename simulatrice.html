@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#180f19">
+  <title>La confidente d’Ekin</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --rose: #efacc4;
+      --nuit: #110b16;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: #fff1f6;
+      font-family: Georgia, "Times New Roman", serif;
+      background:
+        radial-gradient(ellipse at 50% 0%, #48283b, transparent 56%),
+        var(--nuit);
+    }
+
+    button, a { font: inherit; }
+
+    .screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: min(980px, 100%);
+      padding: clamp(18px, 4vw, 32px);
+      border: 1px solid #efacc466;
+      border-radius: 20px;
+      background: #1b1122ef;
+      box-shadow: 0 20px 70px #0006, 0 0 40px #e85b9925;
+    }
+
+    h1, h2 { color: #ffe0ed; }
+    h1 { margin: 0 0 12px; }
+    h2 { margin: 0 0 8px; }
+    p { color: #e9cfdd; line-height: 1.6; }
+
+    .eyebrow {
+      margin: 0 0 7px;
+      color: #f2b5ce;
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .waiting-room {
+      position: relative;
+      height: min(55vh, 390px);
+      min-height: 270px;
+      margin: 22px 0;
+      overflow: hidden;
+      border: 8px solid #59394e;
+      border-radius: 12px;
+      background:
+        radial-gradient(ellipse at 75% 20%, #edb77933, transparent 30%),
+        repeating-linear-gradient(0deg, transparent 0 38px, #ffffff0c 39px 42px),
+        linear-gradient(90deg, transparent 49%, #ffffff12 50%),
+        #57384a;
+      box-shadow: inset 0 -70px #241822;
+    }
+
+    .plant {
+      position: absolute;
+      bottom: 20px;
+      left: 10%;
+      font-size: 56px;
+    }
+
+    .door {
+      position: absolute;
+      right: 13%;
+      bottom: 0;
+      width: 150px;
+      height: 88%;
+      border: 7px solid #392332;
+      background: #261724;
+      perspective: 500px;
+    }
+
+    .door::before {
+      position: absolute;
+      inset: 0;
+      content: "";
+      background:
+        radial-gradient(circle at 85% 52%, #efc36b 0 4px, transparent 5px),
+        repeating-linear-gradient(0deg, transparent 0 55px, #ffffff16 56px 59px),
+        #9a5d69;
+      transform: rotateY(-17deg);
+      transform-origin: left;
+      transition: transform .8s ease;
+    }
+
+    .door.open::before { transform: rotateY(-75deg); }
+
+    .door-button {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      width: 100%;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .door-label {
+      position: absolute;
+      right: 13%;
+      bottom: 10px;
+      color: #ffe0ed;
+    }
+
+    .enter-button, .question-button, .hall-link {
+      display: inline-block;
+      padding: 11px 16px;
+      border: 1px solid #efa8c6aa;
+      border-radius: 24px;
+      color: #fff1f6;
+      background: #673653;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+
+    .enter-button:hover, .question-button:hover, .hall-link:hover {
+      background: #a44d78;
+      transform: translateY(-2px);
+    }
+
+    button:focus-visible, a:focus-visible {
+      outline: 3px solid #ffe0a6;
+      outline-offset: 3px;
+    }
+
+    #office { display: none; }
+
+    .office-layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) minmax(280px, 1.1fr);
+      gap: 24px;
+      align-items: center;
+      text-align: left;
+    }
+
+    /* Une petite pièce chaleureuse, avec fenêtre, étagère, tapis et mobilier. */
+    .pixel-room {
+      position: relative;
+      min-height: 430px;
+      overflow: hidden;
+      border: 5px solid #73506a;
+      border-radius: 10px;
+      isolation: isolate;
+      background:
+        linear-gradient(0deg, #392735 0 20%, transparent 20%),
+        repeating-linear-gradient(0deg, transparent 0 47px, #ffffff0c 48px 51px),
+        repeating-linear-gradient(90deg, transparent 0 88px, #180f1c22 89px 92px),
+        linear-gradient(#493449 0 78%, #30202f 78% 100%);
+      box-shadow: inset 0 0 40px #160d1d99;
+    }
+
+    .pixel-room::before {
+      position: absolute;
+      z-index: -1;
+      right: -15px;
+      bottom: 30px;
+      left: -15px;
+      height: 34px;
+      border-top: 5px solid #805366;
+      background: repeating-linear-gradient(90deg, #59394b 0 55px, #4a3041 56px 110px);
+      content: "";
+    }
+
+    .window {
+      position: absolute;
+      top: 25px;
+      left: 20px;
+      width: 100px;
+      height: 112px;
+      border: 7px solid #d9a7bb;
+      background:
+        linear-gradient(90deg, transparent 47%, #67485e 48% 53%, transparent 54%),
+        linear-gradient(0deg, transparent 47%, #67485e 48% 53%, transparent 54%),
+        radial-gradient(circle at 72% 28%, #fff3b7 0 8px, transparent 9px),
+        linear-gradient(145deg, #7776a6, #d997aa);
+      box-shadow: inset 0 0 0 4px #65485e, 0 0 22px #efb0ce33;
+    }
+
+    .shelf {
+      position: absolute;
+      top: 55px;
+      right: 15px;
+      width: 112px;
+      height: 9px;
+      background: #9b6570;
+      box-shadow: 0 8px #392332;
+    }
+
+    .shelf::before {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      width: 15px;
+      height: 27px;
+      background: #a95d76;
+      box-shadow: 20px 5px #d09a75, 40px 0 #79699c, 61px 6px #d09a75, 82px 1px #c27781;
+      content: "";
+    }
+
+    .lamp {
+      position: absolute;
+      top: 90px;
+      right: 52px;
+      width: 5px;
+      height: 42px;
+      background: #d6a777;
+      box-shadow: 0 0 24px 11px #f3bb7940;
+    }
+
+    .lamp::before {
+      position: absolute;
+      top: -8px;
+      left: -16px;
+      width: 37px;
+      height: 14px;
+      background: #efc58e;
+      clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%);
+      content: "";
+    }
+
+    .plant-room {
+      position: absolute;
+      z-index: 1;
+      bottom: 42px;
+      left: 12px;
+      font-size: 37px;
+      filter: drop-shadow(3px 4px #20151f);
+    }
+
+    .rug {
+      position: absolute;
+      bottom: 13px;
+      left: 50%;
+      width: 230px;
+      height: 45px;
+      border: 4px solid #a35c77;
+      background: repeating-linear-gradient(90deg, #623650 0 12px, #824661 12px 24px);
+      transform: translateX(-50%);
+      clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
+    }
+
+    .desk {
+      position: absolute;
+      z-index: 2;
+      right: 8px;
+      bottom: 75px;
+      width: 112px;
+      height: 12px;
+      background: #a76d72;
+      box-shadow: 0 12px #553546, 0 22px #362533;
+    }
+
+    .desk::before {
+      position: absolute;
+      top: -20px;
+      left: 39px;
+      width: 22px;
+      height: 20px;
+      border: 4px solid #493044;
+      background: #e8c5a1;
+      content: "";
+    }
+
+    .books {
+      position: absolute;
+      z-index: 1;
+      right: 25px;
+      bottom: 91px;
+      width: 35px;
+      height: 22px;
+      border-bottom: 5px solid #523344;
+      background: linear-gradient(90deg, #d9a7bb 0 8px, transparent 8px 11px, #d6a777 11px 20px, transparent 20px 23px, #8b7abb 23px);
+    }
+
+    /* Le personnage est un SVG complet : visage, vêtements, bras, jambes et accessoires. */
+    .avatar {
+      --incline: 0deg;
+      position: absolute;
+      z-index: 3;
+      bottom: 8px;
+      left: 50%;
+      width: min(230px, 76%);
+      height: auto;
+      overflow: visible;
+      transform: translateX(-50%) rotate(var(--incline));
+      transform-origin: 50% 100%;
+      filter: drop-shadow(4px 6px 0 #170e19aa);
+      transition: transform .35s ease, filter .3s ease;
+      shape-rendering: crispEdges;
+    }
+
+    .avatar .breathing {
+      transform-box: fill-box;
+      transform-origin: center bottom;
+      animation: gentle-breath 3.8s ease-in-out infinite;
+    }
+
+    .avatar.pose-phone { --incline: -1deg; }
+    .avatar.pose-coffee { --incline: 1deg; }
+    .avatar.pose-look { --incline: 0deg; }
+    .avatar.pose-cigarette { --incline: -1deg; }
+
+    .avatar.talking { filter: drop-shadow(4px 6px 0 #170e19aa) brightness(1.06); }
+
+    .pose-part { display: none; }
+    .pose-look .look-part,
+    .pose-phone .phone-part,
+    .pose-coffee .coffee-part,
+    .pose-cigarette .cigarette-part { display: inline; }
+
+    .cigarette-smoke {
+      transform-box: fill-box;
+      transform-origin: bottom left;
+      animation: smoke-drift 2.2s ease-out infinite;
+    }
+
+    .dialogue {
+      min-height: 120px;
+      padding: 16px;
+      border-left: 3px solid #efacc4;
+      border-radius: 8px;
+      color: #392438;
+      background: #fff0f6;
+      line-height: 1.65;
+    }
+
+    .questions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .question-button {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .hall-link { margin-top: 22px; }
+
+    @keyframes gentle-breath {
+      0%, 100% { transform: translateY(0) scaleY(1); }
+      50% { transform: translateY(-1.5px) scaleY(1.008); }
+    }
+
+    @keyframes smoke-drift {
+      0% { opacity: 0; transform: translate(0, 3px); }
+      45% { opacity: .65; }
+      100% { opacity: 0; transform: translate(4px, -12px); }
+    }
+
+    @media (max-width: 680px) {
+      .screen { padding: 14px; }
+      .card { padding: 17px; }
+      .office-layout { grid-template-columns: 1fr; }
+      .pixel-room { min-height: 370px; }
+      .dialogue { min-height: 95px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="screen">
+    <section class="card">
+      <div id="waiting">
+        <p class="eyebrow">Une petite visite</p>
+        <h1>La confidente d’Ekin 🗝️</h1>
+        <p>Une porte est entrouverte au bout du couloir. On dirait que quelqu’un t’attend.</p>
+
+        <div class="waiting-room">
+          <div class="plant" aria-hidden="true">🪴</div>
+          <div class="door" id="door">
+            <button class="door-button" id="enter" type="button"
+              aria-label="Entrer dans le bureau"></button>
+          </div>
+          <span class="door-label">Bureau privé</span>
+        </div>
+
+        <button class="enter-button" id="enterText" type="button">
+          Entrer doucement →
+        </button>
+      </div>
+
+      <div id="office">
+        <p class="eyebrow">Confidences autour d’un café</p>
+        <h1>Le bureau des confidences ☕</h1>
+
+        <div class="office-layout">
+          <div class="pixel-room">
+            <div class="window" aria-hidden="true"></div>
+            <div class="shelf" aria-hidden="true"></div>
+            <div class="lamp" aria-hidden="true"></div>
+            <div class="plant-room" aria-hidden="true">🪴</div>
+            <div class="rug" aria-hidden="true"></div>
+            <div class="desk" aria-hidden="true"></div>
+            <div class="books" aria-hidden="true"></div>
+
+           
+           <svg class="avatar pose-look" id="avatar"
+     viewBox="0 0 220 350" role="img"
+     aria-label="Personnage souriant en pixel art, avec un casque audio"
+     xmlns="http://www.w3.org/2000/svg"
+     shape-rendering="crispEdges">
+
+  <g class="breathing">
+    <!-- Cheveux longs derrière le corps -->
+    <path fill="#302124" d="M62 91V58h8V42h13V31h18V24h34v7h17v12h10v17h8v76h-8v28h-9v20h-13v-25h8v-27h7V74h-8V54h-13V42H91v8H78v16h-8v65h8v34H65v-20h-8v-28h-7V91z"/>
+    <path fill="#684334" d="M68 91V59h10V45h16V35h37v8h15v12h10v20h8v56h-9v26h-8v17h-8v-34h8v-30h7V77h-9V58h-15V48H93v8H80v14h-8v58h8v36h-9v-20h-8v-28h-7V91z"/>
+    <path fill="#80513c" d="M71 67h9V53h15v-9h27v6H97v9H84v13h-8v19h-5z"/>
+
+    <!-- Jambes, jean et chaussures -->
+    <path fill="#263344" d="M77 224h66v12h8v82h-9v14h-37v-9h-7v-76h-5v76h-7v9H50v-14h-8v-82h9v-12z"/>
+    <path fill="#5285a0" d="M83 237h25v8h12v-8h18v67h7v18h-32v-9h-7v-73h-6v73h-7v9H49v-18h7v-67h18v8h9z"/>
+    <path fill="#376b87" d="M83 246h25v7H83zm38 0h23v7h-23zM56 306h20v-7h8v7h8v10H49v-10zm51 0h9v-7h8v7h16v10h-33z"/>
+    <path fill="#eee5dc" d="M49 325h38v7H49zm62 0h37v7h-37z"/>
+    <path fill="#30242b" d="M49 332h38v5H49zm62 0h37v5h-37z"/>
+
+    <!-- Pull confortable -->
+    <path fill="#39252b" d="M79 139h18v-9h29v9h17v9h14v20h8v70h-14v10H68v-10H54v-70h8v-20h17z"/>
+    <path fill="#754238" d="M85 147h14v-8h25v8h15v8h11v17h8v56h-13v9H74v-9H61v-56h8v-17h16z"/>
+    <path fill="#925742" d="M86 154h9v36h-8v22h-8v-44h7zm49 0h8v14h8v44h-8v-22h-8z"/>
+    <path fill="#e8c9a0" d="M104 151h12v8h-12z"/>
+
+    <!-- Bras au repos -->
+    <g class="pose-part look-part">
+      <path fill="#39252b" d="M61 154h15v46h-8v24h-9v-13h-8v-21h8v-28z"/>
+      <path fill="#754238" d="M65 161h8v39h-7v22h-8v-16h-7v-14h7v-25h7z"/>
+      <path fill="#f0c3a9" d="M51 211h14v13h-5v9h-8v-9h-5v-9h4z"/>
+
+      <path fill="#39252b" d="M145 154h14v28h8v21h8v20h-9v13h-13v-24h-8z"/>
+      <path fill="#754238" d="M149 161h7v24h7v15h7v14h-7v16h-8v-22h-7v-39h7z"/>
+      <path fill="#f0c3a9" d="M155 211h14v9h-5v9h-8v-8h-5v-6h4z"/>
+    </g>
+
+    <!-- Bras tenant le téléphone -->
+    <g class="pose-part phone-part">
+      <path fill="#39252b" d="M145 153h15v-16h11v-11h12v14h-8v21h-8v19h-12v-9h-10z"/>
+      <path fill="#754238" d="M150 160h8v-24h9v-9h8v9h-7v25h-8v15h-10z"/>
+      <path fill="#f0c3a9" d="M164 124h12v10h-5v8h-7z"/>
+      <path fill="#28212e" d="M177 104h23v37h-23z"/>
+      <path fill="#b9a5cf" d="M181 108h15v22h-15z"/>
+      <path fill="#efe4f0" d="M184 134h9v3h-9z"/>
+    </g>
+
+    <!-- Bras tenant une tasse de café -->
+    <g class="pose-part coffee-part">
+      <path fill="#39252b" d="M145 153h15v18h12v13h-9v-5h-14z"/>
+      <path fill="#754238" d="M150 160h8v13h12v8h-10v-4h-10z"/>
+      <path fill="#f0c3a9" d="M164 173h9v10h-9z"/>
+      <path fill="#332431" d="M164 177h29v29h-29z"/>
+      <path fill="#f0d5b4" d="M168 181h20v20h-20z"/>
+      <path fill="#885665" d="M168 181h20v6h-20z"/>
+      <path fill="#332431" d="M193 183h9v13h-9z"/>
+      <path fill="#f0d5b4" d="M197 186h3v7h-3z"/>
+      <path fill="#f7e4c6" d="M172 170h3v6h-3zm9-4h3v10h-3z"/>
+    </g>
+
+    <!-- Bras portant une cigarette -->
+    <g class="pose-part cigarette-part">
+      <path fill="#39252b" d="M145 153h15v-14h10v-12h12v13h-8v21h-8v12h-12v-9h-9z"/>
+      <path fill="#754238" d="M150 160h8v-23h9v-9h8v8h-7v25h-8v10h-10z"/>
+      <path fill="#f0c3a9" d="M164 126h12v10h-5v8h-7z"/>
+      <path fill="#fff0d9" d="M174 126h24v5h-24z"/>
+      <path fill="#d77765" d="M194 126h4v5h-4z"/>
+      <path class="cigarette-smoke" fill="#f4dce8" d="M181 121h4v-7h5v-7h4v4h-4v7h-5v6h-4z"/>
+    </g>
+
+    <!-- Cou et visage souriant -->
+    <path fill="#d99791" d="M96 122h28v26H96z"/>
+    <path fill="#f0c2a9" d="M101 127h18v17h-18z"/>
+
+    <path fill="#302124" d="M68 73V54h10V43h14V34h39v8h14v13h9v49h-8v18h-9v12H83v-9H72v-17h-8V73z"/>
+    <path fill="#f3ceb8" d="M77 66h10V53h15V45h34v8h10v16h6v30h-8v16h-9v8H89v-8H78v-16h-7V72h6z"/>
+
+    <!-- Frange simple et nette -->
+    <path fill="#382321" d="M68 72V53h11V43h17v-8h35v8h13v12h9v17h-9v11h-8V64h-9v13h-8V57h-8v18h-8V54h-8v20h-8V59h-8v19h-8V72z"/>
+    <path fill="#754838" d="M83 48h13v-7h33v7h-23v8H94v11h-8V56h-8z"/>
+    <path fill="#382321" d="M143 68h8v41h-7v17h-8v-20h7z"/>
+
+    <!-- Yeux, joues et sourire -->
+    <path fill="#815047" d="M82 82h17v4H82zm31 0h17v4h-17z"/>
+    <path fill="#fff1df" d="M84 87h13v7H84zm31 0h13v7h-13z"/>
+    <path fill="#392b32" d="M89 87h6v7h-6zm31 0h6v7h-6z"/>
+    <path fill="#fff" d="M90 88h3v3h-3zm31 0h3v3h-3z"/>
+    <path fill="#e8a49c" d="M77 101h10v5H77zm47 0h10v5h-10z"/>
+    <path fill="#d99791" d="M104 98h7v9h-7z"/>
+    <path fill="#a65e68" d="M100 114h17v4h-4v3h-9v-3h-4z"/>
+
+    <!-- Casque audio -->
+    <path fill="#211d23" d="M63 74V54h7V39h10V28h14V20h34v8h14v11h10v15h7v20h-9V57h-8V44h-9V34h-13v-6H96v6H84v10h-8v13h-7v17z"/>
+    <path fill="#f2eee8" d="M79 42h8V31h13v-7h31v7h12v11h8v10h-8v-6h-8V36h-12v-7h-26v7H87v10h-8z"/>
+    <path fill="#211d23" d="M45 70h13V54h14v42H58v-8H45z"/>
+    <path fill="#dce5e5" d="M51 67h13v22H51z"/>
+    <path fill="#a7bbc0" d="M53 70h4v15h-4z"/>
+    <path fill="#211d23" d="M148 54h14v16h13v18h-13v8h-14z"/>
+    <path fill="#dce5e5" d="M155 67h13v22h-13z"/>
+    <path fill="#a7bbc0" d="M162 70h4v15h-4z"/>
+  </g>
+</svg>
+          </div>
+
+          <div>
+            <h2>Lana</h2>
+            <p>Confidente loyale d’Ekin.</p>
+
+            <div class="dialogue" id="dialogue" aria-live="polite">
+              « Entre, ma belle. Ici, les secrets sont bien gardés… et le café est toujours chaud. »
+            </div>
+
+            <div class="questions" aria-label="Choisir une question">
+              <button class="question-button" data-answer="secret" type="button">
+                Tu connais mon plus grand secret ?
+              </button>
+              <button class="question-button" data-answer="incroyable" type="button">
+                Pourquoi suis-je incroyable ?
+              </button>
+              <button class="question-button" data-answer="souvenir" type="button">
+                Tu as un souvenir drôle de nous ?
+              </button>
+              <button class="question-button" data-answer="conseil" type="button">
+                Un conseil pour moi ?
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <a class="hall-link" href="accueil.html">← Retour au hall</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="image/1950s stormy night ambience 🌧️ cozy grandma’s cottage with oldies playing in another room for sleep.mp3"></script>
+  <script>
+    const waiting = document.getElementById("waiting");
+    const office = document.getElementById("office");
+    const door = document.getElementById("door");
+    const avatar = document.getElementById("avatar");
+    const dialogue = document.getElementById("dialogue");
+
+    let roomEntered = false;
+    let typingTimer = null;
+
+    function enterRoom() {
+      if (roomEntered) return;
+      roomEntered = true;
+      door.classList.add("open");
+
+      window.setTimeout(() => {
+        waiting.style.display = "none";
+        office.style.display = "block";
+      }, 650);
+    }
+
+    document.getElementById("enter").addEventListener("click", enterRoom);
+    document.getElementById("enterText").addEventListener("click", enterRoom);
+
+    const answers = {
+      secret: {
+        pose: "pose-phone",
+        text: "« Ton secret ? Tu fais semblant de ne pas aimer les surprises… mais tu adore quand on pense à toi. Garde ça entre nous ! Et la musique... tu es si douée en blindtest, Céline pête toujours son crâne HAHAHAHAH. Mais c'est notre petit secret»"
+      },
+      incroyable: {
+        pose: "pose-look",
+        text: "« Tu as ce talent rare : tu rends les journées ordinaires beaucoup plus lumineuses. Et tu ne te rend même pas compte à quel point tu es géniale. Tes copines ont énormément de chance de t'avoir. Je les envies »"
+      },
+      souvenir: {
+        pose: "pose-coffee",
+        text: "« Un jour, avec tes copines tu as crée un clip sur Break free de Ariana. Ah mais, tu te rappelles l'autre fois il y avait ce jeux sur Roblox... je connais plus le nom. Mais tu me racontais que c'était vraiment très drôle et que tu avais même mal ventre après. »"
+      },
+      conseil: {
+        pose: "pose-cigarette",
+        text: "« Mon conseil ? Que tu continues d’être toi-même. Le monde a déjà assez de gens sérieux — il a besoin de ton énergie. Crois en toi ! Tu iras loin. Je le sais. »"
+      }
+    };
+
+    document.querySelectorAll(".question-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        const answer = answers[button.dataset.answer];
+        if (!answer) return;
+
+        window.clearInterval(typingTimer);
+        avatar.setAttribute("class", `avatar ${answer.pose} talking`);
+        dialogue.textContent = "";
+
+        const characters = Array.from(answer.text);
+        let index = 0;
+
+        typingTimer = window.setInterval(() => {
+          dialogue.textContent += characters[index];
+          index++;
+
+          if (index >= characters.length) {
+            window.clearInterval(typingTimer);
+            avatar.classList.remove("talking");
+          }
+        }, 28);
+      });
+    });
+  </script>
+  <script src="image/Young And Beautiful.mp3"></script>
+</body>
+</html>

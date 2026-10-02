@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#100914">
+  <title>Le grand mystère</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      color: #fff4fa;
+      font-family: Georgia, "Times New Roman", serif;
+      background: radial-gradient(ellipse, #32152b, #100914 60%, #08050d);
+    }
+
+    button, a { font: inherit; }
+
+    .page {
+      width: min(560px, 100%);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      color: #ffe1f0;
+      text-shadow: 0 0 20px #ff62ae88;
+    }
+
+    .hint {
+      min-height: 26px;
+      color: #e8c8dc;
+    }
+
+    .scene {
+      position: relative;
+      height: 430px;
+      margin: 12px auto;
+    }
+
+    .envelope {
+      position: absolute;
+      left: 50%;
+      bottom: 22px;
+      width: min(340px, 88vw);
+      height: 205px;
+      perspective: 900px;
+      transform: translateX(-50%);
+    }
+
+    .envelope-back {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      border-radius: 8px;
+      background: #b94e7f;
+      box-shadow: 0 14px 36px #0008;
+    }
+
+    .letter {
+      --pull-y: 0px;
+      position: absolute;
+      z-index: 2;
+      bottom: 0;
+      left: 50%;
+      width: min(290px, 76vw);
+      height: 300px;
+      padding: 16px;
+      overflow: hidden;
+      border: 1px solid #efd9b6;
+      border-radius: 5px;
+      color: #493346;
+      background: #fff8e9;
+      box-shadow: 0 6px 18px #0005;
+      opacity: 0;
+      visibility: hidden;
+      transform: translate(-50%, var(--pull-y));
+      transition:
+        transform .75s cubic-bezier(.2, .8, .2, 1),
+        opacity .25s ease,
+        visibility 0s linear .75s;
+      touch-action: none;
+    }
+
+    .letter.visible {
+      --pull-y: -65px;
+      z-index: 3;
+      opacity: 1;
+      visibility: visible;
+      transition:
+        transform .75s cubic-bezier(.2, .8, .2, 1),
+        opacity .25s ease,
+        visibility 0s;
+    }
+
+    .letter.dragging { transition: none; }
+    .letter.pulled { z-index: 6; }
+
+    .pull-handle {
+      display: block;
+      width: 100%;
+      padding: 10px 4px;
+      border: 0;
+      border-bottom: 1px dashed #c79aad;
+      color: #85536e;
+      background: transparent;
+      font-size: 14px;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .pull-handle:active { cursor: grabbing; }
+
+    .letter-content {
+      padding: 12px 4px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .35s ease, visibility .35s ease;
+    }
+
+    .letter.pulled .letter-content {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .letter-content h2 {
+      color: #a93b83;
+      font-size: 25px;
+    }
+
+    .letter-content p { line-height: 1.6; }
+
+    .envelope-flap {
+      position: absolute;
+      z-index: 5;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-top: 118px solid #f08ab5;
+      border-right: 170px solid transparent;
+      border-left: 170px solid transparent;
+      transform-origin: top center;
+      transition: transform .65s ease;
+    }
+
+    .envelope.open .envelope-flap { transform: rotateX(180deg); }
+
+    .envelope-front {
+      position: absolute;
+      z-index: 4;
+      inset: 0;
+      border-radius: 0 0 8px 8px;
+      background: #d96898;
+      clip-path: polygon(0 0, 50% 58%, 100% 0, 100% 100%, 0 100%);
+      pointer-events: none;
+    }
+
+    .envelope-front::before {
+      position: absolute;
+      inset: 0;
+      background: #c95787;
+      clip-path: polygon(0 0, 50% 58%, 0 100%);
+      content: "";
+    }
+
+    .envelope-trigger {
+      position: absolute;
+      z-index: 7;
+      inset: 0;
+      width: 100%;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .envelope.open .envelope-trigger { pointer-events: none; }
+
+    .hall-link {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 11px 18px;
+      border: 1px solid #ffb1d4aa;
+      border-radius: 24px;
+      color: #ffe1f0;
+      background: #261326dd;
+      text-decoration: none;
+      transition: background .2s, transform .2s;
+    }
+
+    .hall-link:hover {
+      background: #57244a;
+      transform: translateY(-2px);
+    }
+
+    .flowers, .fireworks {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .flowers { z-index: 10; }
+    .fireworks { z-index: 20; }
+    .flowers.active, .fireworks.active { visibility: visible; }
+
+    .flowers span {
+      position: absolute;
+      opacity: 0;
+      animation: flower-fall 1.8s ease-in-out var(--delay) both;
+    }
+
+    .fireworks span {
+      position: absolute;
+      color: var(--color);
+      font-size: 24px;
+      text-shadow: 0 0 12px currentColor;
+      opacity: 0;
+      animation: firework-burst 1.8s ease-out var(--delay) both;
+    }
+
+    @keyframes flower-fall {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.3) rotate(0);
+      }
+      20%, 65% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) rotate(100deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(
+          calc(-50% + var(--dx)),
+          calc(-50% + var(--dy))
+        ) scale(.5) rotate(220deg);
+      }
+    }
+
+    @keyframes firework-burst {
+      0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(.2) rotate(0);
+      }
+      15% { opacity: 1; }
+      100% {
+        opacity: 0;
+        transform: translate(var(--dx), var(--dy)) scale(1.3) rotate(180deg);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .scene { height: 390px; }
+
+      .envelope {
+        height: 190px;
+        bottom: 20px;
+      }
+
+      .envelope-flap {
+        border-top-width: 108px;
+        border-right-width: 44vw;
+        border-left-width: 44vw;
+      }
+
+      .letter { height: 280px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <h1>Un message pour toi 💌</h1>
+    <p class="hint" id="hint">Clique sur l’enveloppe pour l’ouvrir.</p>
+
+    <div class="scene">
+      <div class="envelope" id="envelope">
+        <div class="envelope-back" aria-hidden="true"></div>
+
+        <article class="letter" id="letter">
+          <button class="pull-handle" id="pullHandle" type="button">
+            ↑ Tire la feuille vers le haut (ou clique ici)
+          </button>
+
+          <div class="letter-content" aria-live="polite">
+            <h2>Bravo ma chérie ! 💖</h2>
+            <p>Tu as terminé toutes les quêtes !</p>
+            <p>Tu as droit à ton cadeau ! 🎁</p>
+            <p>Indice : équipe et réflexion</p>
+          </div>
+        </article>
+
+        <div class="envelope-flap" aria-hidden="true"></div>
+        <div class="envelope-front" aria-hidden="true"></div>
+
+        <button
+          class="envelope-trigger"
+          id="envelopeTrigger"
+          type="button"
+          aria-label="Ouvrir l’enveloppe"
+        ></button>
+      </div>
+    </div>
+
+    <a class="hall-link" href="accueil.html">← Retour au hall</a>
+  </main>
+
+  <div class="flowers" id="flowers" aria-hidden="true"></div>
+  <div class="fireworks" id="fireworks" aria-hidden="true"></div>
+
+  <script src="musique.js"></script>
+  <script>
+    const envelope = document.getElementById("envelope");
+    const envelopeTrigger = document.getElementById("envelopeTrigger");
+    const letter = document.getElementById("letter");
+    const pullHandle = document.getElementById("pullHandle");
+    const flowers = document.getElementById("flowers");
+    const fireworks = document.getElementById("fireworks");
+    const hint = document.getElementById("hint");
+
+    let opened = false;
+    let revealed = false;
+    let isDragging = false;
+    let dragStartY = 0;
+    let flowerTimer;
+    let fireworksTimer;
+
+    const flowerTypes = ["🌸", "🌺", "🌼", "🌷", "🌻", "🌹"];
+
+    function createFlowers() {
+      flowers.replaceChildren();
+
+      const cellSize = 145;
+      const columns = Math.ceil(window.innerWidth / cellSize);
+      const rows = Math.ceil(window.innerHeight / cellSize);
+
+      for (let row = 0; row < rows; row++) {
+        for (let column = 0; column < columns; column++) {
+          const flower = document.createElement("span");
+          flower.textContent =
+            flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
+
+          flower.style.left = `${column * cellSize + Math.random() * cellSize}px`;
+          flower.style.top = `${row * cellSize + Math.random() * cellSize}px`;
+          flower.style.fontSize = `${24 + Math.random() * 20}px`;
+          flower.style.setProperty("--delay", `${Math.random() * 0.15}s`);
+          flower.style.setProperty("--dx", `${(Math.random() - 0.5) * 140}px`);
+          flower.style.setProperty("--dy", `${(Math.random() - 0.5) * 140}px`);
+
+          flowers.appendChild(flower);
+        }
+      }
+    }
+
+    function launchFireworks() {
+      fireworks.replaceChildren();
+
+      const colors = ["#ff75c3", "#ffe779", "#8bdcff", "#b99aff", "#ffffff"];
+
+      for (let burst = 0; burst < 12; burst++) {
+        const centerX = 8 + Math.random() * 84;
+        const centerY = 12 + Math.random() * 70;
+
+        for (let particle = 0; particle < 14; particle++) {
+          const angle = (Math.PI * 2 * particle) / 14;
+          const distance = 45 + Math.random() * 100;
+          const spark = document.createElement("span");
+
+          spark.textContent = "✦";
+          spark.style.left = `${centerX}%`;
+          spark.style.top = `${centerY}%`;
+          spark.style.setProperty("--dx", `${Math.cos(angle) * distance}px`);
+          spark.style.setProperty("--dy", `${Math.sin(angle) * distance}px`);
+          spark.style.setProperty(
+            "--color",
+            colors[Math.floor(Math.random() * colors.length)]
+          );
+          spark.style.setProperty("--delay", `${burst * 0.16}s`);
+
+          fireworks.appendChild(spark);
+        }
+      }
+
+      fireworks.classList.add("active");
+      window.clearTimeout(fireworksTimer);
+      fireworksTimer = window.setTimeout(() => {
+        fireworks.classList.remove("active");
+      }, 4200);
+    }
+
+    envelopeTrigger.addEventListener("click", () => {
+      if (opened) return;
+      opened = true;
+
+      createFlowers();
+      envelope.classList.add("open");
+      flowers.classList.add("active");
+      hint.textContent = "Une petite pluie de fleurs pour toi… 🌸";
+
+      flowerTimer = window.setTimeout(() => {
+        flowers.classList.remove("active");
+        letter.classList.add("visible");
+        hint.textContent = "La feuille dépasse : tire-la vers le haut.";
+      }, 2000);
+    });
+
+    function revealLetter() {
+      if (revealed || !letter.classList.contains("visible")) return;
+
+      revealed = true;
+      letter.classList.add("pulled");
+      letter.style.setProperty("--pull-y", "-175px");
+      hint.textContent = "Bravo ! Voici ton cadeau 🎁";
+      launchFireworks();
+    }
+
+    pullHandle.addEventListener("click", revealLetter);
+
+    pullHandle.addEventListener("pointerdown", (event) => {
+      if (!letter.classList.contains("visible") || revealed) return;
+
+      isDragging = true;
+      dragStartY = event.clientY;
+      letter.classList.add("dragging");
+      pullHandle.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    });
+
+    pullHandle.addEventListener("pointermove", (event) => {
+      if (!isDragging || revealed) return;
+
+      const distance = event.clientY - dragStartY;
+      const pullY = Math.max(-180, Math.min(-65, -65 + distance));
+      letter.style.setProperty("--pull-y", `${pullY}px`);
+
+      if (distance < -40) {
+        letter.classList.add("pulled");
+        hint.textContent = "Encore un peu… ✨";
+      } else {
+        letter.classList.remove("pulled");
+        hint.textContent = "Tire la feuille vers le haut.";
+      }
+    });
+
+    function finishPull() {
+      if (!isDragging) return;
+
+      isDragging = false;
+      letter.classList.remove("dragging");
+
+      if (letter.classList.contains("pulled")) {
+        revealLetter();
+      } else {
+        letter.style.setProperty("--pull-y", "-65px");
+      }
+    }
+
+    pullHandle.addEventListener("pointerup", finishPull);
+    pullHandle.addEventListener("pointercancel", finishPull);
+
+    window.addEventListener("pagehide", () => {
+      window.clearTimeout(flowerTimer);
+      window.clearTimeout(fireworksTimer);
+    });
+  </script>
+</body>
+</html>

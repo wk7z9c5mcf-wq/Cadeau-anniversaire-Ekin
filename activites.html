@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Activités secrètes</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<script src="musique.js"></script>
+<body class="activities-page">
+  <main class="page activities">
+    <h1>Nos aventures secrètes</h1>
+    <p class="intro">Un petit coffre cache nos prochaines sorties…</p>
+
+    <section class="unlock-area" aria-label="Coffre à déverrouiller">
+      <button class="secret-box" id="secretBox" type="button" aria-label="Toucher le coffre pour l’ouvrir">
+        <span class="box-icon" id="boxIcon" aria-hidden="true">🧰</span>
+        <span class="box-label">TOUCHE POUR OUVRIR</span>
+      </button>
+      <p id="unlockMessage" aria-live="polite">Touchez le coffre 3 fois pour le déverrouiller ✨</p>
+      <div class="lock-progress" aria-hidden="true">
+        <span class="lock-dot"></span>
+        <span class="lock-dot"></span>
+        <span class="lock-dot"></span>
+      </div>
+    </section>
+
+    <section id="activityContent" class="activity-content" hidden>
+      <h2>À faire ensemble ♡</h2>
+      <div class="activity-grid">
+        <article class="activity-card">
+          <img src="image/43ddefd947a524788aec3dfb2d0a278b.jpg" alt="Café chaleureux">
+          <h3>Tester des cafés</h3><p>Découvrir nos cafés préférés à Neuchâtel.</p>
+        </article>
+        <article class="activity-card">
+          <img src="image/494a780e8be0e6ba222082a25c4da727.jpg" alt="Chat dans un refuge">
+          <h3>Visiter un refuge pour chats</h3><p>Rencontrer de petits compagnons à moustaches.</p>
+        </article>
+        <article class="activity-card">
+          <img src="image/6ad0628c6c49a400aad67e18edc47aaf.jpg" alt="Matériel de peinture">
+          <h3>Peinture ou poterie</h3><p>Créer quelque chose de joli, même si c’est bancal.</p>
+        </article>
+        <article class="activity-card">
+          <img src="image/e96d1a833371c6de67d60d3e9b2ac0f1.jpg" alt="Appareil photo instantané">
+          <h3>Chasse aux photos</h3><p>Capturer des souvenirs façon Polaroid.</p>
+        </article>
+        <article class="activity-card">
+          <img src="image/29f0ab46bac493a9447087fbcaa10b22.jpg" alt="Bougies artisanales">
+          <h3>Fabriquer des bougies</h3><p>Choisir les couleurs et les parfums.</p>
+        </article>
+        <article class="activity-card">
+          <img src="image/5cf54722ab9bdf70cd2e90bb145ad132.jpg" alt="Promenade sous la pluie">
+          <h3>Se promener sous la pluie</h3><p>Avec de jolis parapluies, évidemment !</p>
+        </article>
+        <article class="activity-card">
+          <img src="image/ae4d5c5b26c3b6f69a7c5526a88e5445.jpg" alt="Soirée cinéma">
+          <h3>Soirée cinéma</h3><p>Film, couvertures et pop-corn.</p>
+        </article>
+        <article class="activity-card">
+          <img src="image/6a08507d7af7895b8851cb184c4205e2.jpg" alt="Café-librairie">
+          <h3>Café-librairie</h3><p>Lire et papoter autour d’une boisson chaude.</p>
+        </article>
+        <article class="activity-card">
+          <img src="image/0c0b83b75404c2184d08fa19d3fb5272.jpg" alt="Coucher de soleil">
+          <h3>Regarder le coucher du soleil</h3><p>Profiter du moment et prendre des photos.</p>
+        </article>
+        <article class="activity-card">
+          <img src="image/cdf3257a274a97ffd31740e6a639dc45.jpg" alt="Disques vinyles">
+          <h3>Écouter des vinyles</h3><p>Se faire une petite soirée musique rétro.</p>
+        </article>
+      </div>
+    </section>
+
+    <a class="button activities-back" href="accueil.html">← Retour au hall</a>
+  </main>
+
+  <script>
+    const secretBox = document.getElementById("secretBox");
+    const boxIcon = document.getElementById("boxIcon");
+    const unlockMessage = document.getElementById("unlockMessage");
+    const progressDots = document.querySelectorAll(".lock-dot");
+    const activityContent = document.getElementById("activityContent");
+    let clicks = 0;
+
+    secretBox.addEventListener("click", () => {
+      if (clicks >= 3) return;
+
+      clicks++;
+      progressDots[clicks - 1].classList.add("complete");
+      secretBox.classList.remove("shake");
+      void secretBox.offsetWidth;
+      secretBox.classList.add("shake");
+
+      if (clicks < 3) {
+        unlockMessage.textContent = `Encore ${3 - clicks} clic${clicks === 1 ? "s" : ""} pour ouvrir le coffre…`;
+        return;
+      }
+
+      secretBox.classList.add("opened");
+      boxIcon.textContent = "🗃️";
+      secretBox.querySelector(".box-label").textContent = "COFFRE OUVERT";
+      secretBox.setAttribute("aria-label", "Le coffre est ouvert");
+      unlockMessage.textContent = "Les idées d’aventures sont révélées !";
+      activityContent.hidden = false;
+      activityContent.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  </script>
+</body>
+</html>

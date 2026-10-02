@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ekin Simulator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+.home-button {
+  position: fixed;
+  z-index: 10;
+  top: 16px;
+  left: 16px;
+  padding: 10px 16px;
+  border: 1px solid #d5a3c1;
+  border-radius: 999px;
+  background: #4b466b;
+  color: #fff4f7;
+  font: bold 14px "Courier New", monospace;
+  text-decoration: none;
+}
+
+.home-button:hover {
+  filter: brightness(1.2);
+}
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 30px 16px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 15% 20%, #f8d9e7 0 2px, transparent 3px),
+        linear-gradient(145deg, #382d4c, #776083 55%, #d29aab);
+      background-size: 38px 38px, cover;
+      color: #f8edf4;
+      font-family: "Courier New", monospace;
+    }
+
+    .computer {
+      width: min(960px, 100%);
+      position: relative;
+      padding: clamp(12px, 3vw, 24px);
+      border: 5px solid #5a4a55;
+      border-radius: 28px;
+      background: linear-gradient(145deg, #e5d8d1, #a99a9d);
+      box-shadow: 0 24px 50px #160f20a6, inset 0 0 0 3px #f6ece4;
+    }
+
+    .computer-screen {
+      min-height: 570px;
+      overflow: hidden;
+      border: 12px solid #403b46;
+      border-radius: 18px;
+      background: #171827;
+      box-shadow: inset 0 0 22px #090a12;
+    }
+
+    .screen-bar {
+      min-height: 38px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #292a3b;
+      color: #e9d8ed;
+      font-size: 12px;
+    }
+
+    .screen-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .screen-dots span {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #e69aab;
+    }
+
+    .screen-dots span:nth-child(2) { background: #e9c67d; }
+    .screen-dots span:nth-child(3) { background: #9bccaa; }
+
+    .game-screen {
+      min-height: 520px;
+      padding: clamp(20px, 5vw, 48px);
+      background:
+        radial-gradient(ellipse at 50% 0%, #82629030, transparent 65%),
+        #171827;
+    }
+
+    .game-content {
+      width: min(720px, 100%);
+      margin: 0 auto;
+    }
+
+    .start-screen,
+    .ending-screen {
+      min-height: 440px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .pixel-icon {
+      margin-bottom: 10px;
+      font-size: clamp(55px, 12vw, 90px);
+      filter: drop-shadow(0 0 18px #e69aab88);
+    }
+
+    h1,
+    h2 {
+      color: #f1c3d9;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    h1 {
+      margin: 8px 0;
+      font-size: clamp(34px, 7vw, 58px);
+      text-shadow: 0 0 18px #d58cac77;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: clamp(25px, 5vw, 36px);
+    }
+
+    p {
+      color: #e5d9e8;
+      line-height: 1.75;
+    }
+
+    .eyebrow {
+      color: #d8a9c3;
+      font-size: 12px;
+      letter-spacing: 3px;
+    }
+
+    .dialogue {
+      margin: 18px 0;
+      padding: 16px 20px;
+      border-left: 3px solid #d98eae;
+      border-radius: 5px;
+      background: #ffffff0c;
+      color: #f0e4ed;
+      line-height: 1.7;
+    }
+
+    .dialogue p {
+      margin: 7px 0;
+    }
+
+    .choice-list {
+      display: grid;
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .game-button {
+      width: 100%;
+      padding: 13px 18px;
+      border: 1px solid #d5a3c1;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #704e78, #4b466b);
+      color: #fff4f7;
+      font: bold 15px "Courier New", monospace;
+      text-align: left;
+      cursor: pointer;
+      transition: transform 160ms ease, filter 160ms ease, box-shadow 160ms ease;
+    }
+
+    .game-button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.2);
+      box-shadow: 0 5px 18px #d98eae33;
+    }
+
+    .game-button.primary {
+      width: auto;
+      min-width: 210px;
+      margin-top: 14px;
+      text-align: center;
+      background: linear-gradient(135deg, #c26991, #80557f);
+    }
+
+    .game-button.centered {
+      display: block;
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    .mission-bar {
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid #ffffff2a;
+      color: #c8b7d3;
+      font-size: 12px;
+    }
+
+    .stat-card,
+    .profile-card {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #ffffff29;
+      border-radius: 12px;
+      background: #ffffff0b;
+    }
+
+    .stat-card p,
+    .profile-card p {
+      margin: 9px 0;
+    }
+
+    .success {
+      color: #a8e3b6;
+      font-weight: bold;
+    }
+
+    .warning {
+      color: #f4cc91;
+    }
+
+    .computer-button {
+      width: 88px;
+      height: 18px;
+      margin: 12px auto 0;
+      border: 2px solid #796b72;
+      border-radius: 20px;
+      background: #d2c5c2;
+      box-shadow: inset 0 2px 4px #50464b55;
+    }
+
+    .computer-stand {
+      width: 160px;
+      height: 34px;
+      margin: 0 auto;
+      background: linear-gradient(#aaa0a2, #81777e);
+      clip-path: polygon(25% 0, 75% 0, 90% 100%, 10% 100%);
+    }
+
+    .computer-base {
+      width: 240px;
+      max-width: 50%;
+      height: 15px;
+      margin: -1px auto 0;
+      border-radius: 50%;
+      background: #9b9098;
+      box-shadow: 0 8px 15px #160f2055;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 14px 8px;
+      }
+
+      .computer {
+        padding: 10px;
+        border-width: 3px;
+        border-radius: 20px;
+      }
+
+      .computer-screen {
+        min-height: 550px;
+        border-width: 7px;
+      }
+
+      .game-screen {
+        min-height: 530px;
+        padding: 22px 16px;
+      }
+
+      .screen-bar {
+        font-size: 10px;
+      }
+
+      .computer-stand {
+        height: 25px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<script src="musique.js"></script>
+<body>
+  <!-- À placer juste après <body> -->
+<a class="home-button" href="accueil.html">← Retour à l’accueil</a>
+  <main class="computer" aria-label="Ordinateur de jeu rétro">
+    <div class="computer-screen">
+      <div class="screen-bar">
+        <span class="screen-dots" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </span>
+        <span>EKIN_SIMULATOR.exe</span>
+        <span id="systemStatus">HORS LIGNE</span>
+      </div>
+      <section class="game-screen">
+        <div class="game-content" id="gameContent"></div>
+      </section>
+    </div>
+    <div class="computer-button" aria-hidden="true"></div>
+    <div class="computer-stand" aria-hidden="true"></div>
+    <div class="computer-base" aria-hidden="true"></div>
+  </main>
+
+  <script>
+    const gameContent = document.getElementById("gameContent");
+    const systemStatus = document.getElementById("systemStatus");
+
+    const state = {
+      screen: "start",
+      found: [],
+      answer: ""
+    };
+
+    function button(label, action, extraClass = "") {
+      return `<button class="game-button ${extraClass}" data-action="${action}">${label}</button>`;
+    }
+
+    function show(html, status = "EN JEU") {
+      gameContent.innerHTML = html;
+      systemStatus.textContent = status;
+    }
+
+    function render() {
+      if (state.screen === "start") {
+        show(`
+          <div class="start-screen">
+            <div class="pixel-icon" aria-hidden="true">🖥️</div>
+            <p class="eyebrow">UN JEU RÉTRO • UNE AVENTURE INOUBLIABLE</p>
+            <h1>EKIN SIMULATOR</h1>
+            <p>Un ordinateur mystérieux vient de s’allumer…<br>
+            Oseras-tu entrer à l’intérieur ?</p>
+            ${button("▶ ENTRER DANS LE JEU", "enter", "primary")}
+          </div>
+        `, "PRÊT");
+        return;
+      }
+
+      if (state.screen === "intro") {
+        show(`
+          <div class="mission-bar"><span>NOUVELLE PARTIE</span><span>JOUEUSE : EKIN</span></div>
+          <p class="eyebrow">BIENVENUE DANS L’AVENTURE</p>
+          <h2>Le jeu commence…</h2>
+          <p>Trois niveaux, trois épreuves et un secret bien gardé t’attendent.</p>
+          <div class="dialogue"><p><strong>Objectif :</strong> retrouver tes amies, réussir les épreuves et découvrir le secret final.</p></div>
+          ${button("Commencer l’aventure →", "start-roblox", "primary")}
+        `);
+        return;
+      }
+
+      if (state.screen === "roblox-roof") {
+        show(`
+          <div class="mission-bar"><span>NIVEAU 1 • ROBLOX</span><span>AMIES : ${state.found.length}/3</span></div>
+          <p class="eyebrow">TOIT D’UN IMMEUBLE • JOUR INCONNU</p>
+          <h2>Où suis-je ?</h2>
+          <p>Ekin se réveille sur le toit d’un immeuble. Autour d’elle, la ville semble abandonnée. Au loin, des zombies errent dans les rues.</p>
+          <div class="dialogue"><p><strong>Ekin :</strong> « Attendez… pourquoi je suis sur un toit ? »</p></div>
+          <p>Il faut retrouver Céline, Emma et Kiara. Un signal de détresse semble venir d’un bâtiment voisin.</p>
+          ${button("Explorer le centre médical 🏥", "go-medical")}
+        `);
+        return;
+      }
+
+      if (state.screen === "medical") {
+        show(`
+          <div class="mission-bar"><span>NIVEAU 1 • ROBLOX</span><span>OBJECTIF : CÉLINE</span></div>
+          <p class="eyebrow">CENTRE MÉDICAL</p>
+          <h2>Une catastrophe sanitaire ?</h2>
+          <p>Après avoir traversé plusieurs bâtiments, Ekin découvre un centre médical. À l’intérieur, Céline soigne calmement tout le monde.</p>
+          <div class="dialogue">
+            <p><strong>Ekin :</strong> « Céline ! Je te cherchais partout ! »</p>
+            <p><strong>Céline :</strong> « J’étais occupée à empêcher une catastrophe sanitaire. »</p>
+            <p><strong>Ekin :</strong> « L’apocalypse est littéralement dehors. »</p>
+            <p><strong>Céline :</strong> « Oui, justement. »</p>
+          </div>
+          ${button("Céline retrouvée ✓ • Suivre le prochain signal", "find-celine")}
+        `);
+        return;
+      }
+
+      if (state.screen === "control-room") {
+        show(`
+          <div class="mission-bar"><span>NIVEAU 1 • ROBLOX</span><span>OBJECTIF : EMMA</span></div>
+          <p class="eyebrow">SALLE DE CONTRÔLE</p>
+          <h2>97 % des joueurs localisés</h2>
+          <p>Un nouvel indice mène à une immense salle de contrôle remplie d’écrans. Emma observe des cartes du serveur Roblox.</p>
+          <div class="dialogue">
+            <p><strong>Emma :</strong> « J’ai localisé 97 % des joueurs. »</p>
+            <p><strong>Ekin :</strong> « Et moi ? »</p>
+            <p><strong>Emma :</strong> « Je t’avais perdue. »</p>
+            <p><strong>Ekin :</strong> « Merci Emma. »</p>
+          </div>
+          ${button("Emma retrouvée ✓ • Suivre le dernier signal", "find-emma")}
+        `);
+        return;
+      }
+
+      if (state.screen === "kiara-roof") {
+        show(`
+          <div class="mission-bar"><span>NIVEAU 1 • ROBLOX</span><span>OBJECTIF : KIARA</span></div>
+          <p class="eyebrow">RETOUR SUR LE TOIT</p>
+          <h2>Kiara était là depuis le début</h2>
+          <p>Le dernier signal mène… au même toit que celui où Ekin s’est réveillée. Kiara est assise là, sans raison apparente.</p>
+          <div class="dialogue">
+            <p><strong>Ekin :</strong> « Mais tu étais là depuis le début ?! »</p>
+            <p><strong>Kiara :</strong> « Oui. »</p>
+            <p><strong>Ekin :</strong> « Pourquoi tu n’es pas descendue ? »</p>
+            <p><strong>Kiara :</strong> « J’attendais qu’on me retrouve. »</p>
+          </div>
+          ${button("Kiara retrouvée ✓ • Continuer", "find-kiara")}
+        `);
+        return;
+      }
+
+      if (state.screen === "brawl-intro") {
+        show(`
+          <div class="mission-bar"><span>NIVEAU 2 • BRAWL STARS</span><span>ÉPREUVE : STATISTIQUES</span></div>
+          <p class="eyebrow">MACHINE MYSTÉRIEUSE DÉTECTÉE</p>
+          <h2>Les statistiques officielles</h2>
+          <div class="stat-card">
+            <p><strong>Profil d’Ekin</strong></p>
+            <p>Nombre de parties : <strong>472 928</strong></p>
+            <p>Nombre de victoires : <strong>Beaucoup</strong></p>
+            <p>Nombre de défaites : <strong>Le système refuse de répondre</strong></p>
+            <p>Nombre de rage quit : <strong>1</strong></p>
+          </div>
+          <div class="dialogue">
+            <p><strong>Emma :</strong> « Une seule fois ? »</p>
+            <p><strong>Céline :</strong> « Impressionnant. »</p>
+            <p><strong>Kiara :</strong> « Je ne crois pas aux statistiques. »</p>
+          </div>
+          ${button("Examiner le rage quit →", "start-brawl")}
+        `);
+        return;
+      }
+
+      if (state.screen === "brawl-question") {
+        show(`
+          <div class="mission-bar"><span>NIVEAU 2 • BRAWL STARS</span><span>QUESTION</span></div>
+          <h2>Pourquoi ce rage quit ?</h2>
+          <p>Choisis la réponse officielle du système.</p>
+          <div class="choice-list">
+            ${button("A. Une mauvaise connexion", "brawl-wrong")}
+            ${button("B. Un bug", "brawl-wrong")}
+            ${button("C. Elle avait tort", "brawl-wrong")}
+            ${button("D. Impossible, Ekin a toujours raison", "brawl-correct")}
+          </div>
+        `);
+        return;
+      }
+
+      if (state.screen === "brawl-wrong") {
+        show(`
+          <div class="mission-bar"><span>NIVEAU 2 • BRAWL STARS</span><span>RÉESSAYER</span></div>
+          <h2>Réponse refusée !</h2>
+          <div class="dialogue"><p>La machine affiche : « Cette réponse ne correspond pas aux statistiques officielles. »</p></div>
+          ${button("Réessayer la question", "start-brawl")}
+        `);
+        return;
+      }
+
+      if (state.screen === "brawl-success") {
+        show(`
+          <div class="mission-bar"><span>NIVEAU 2 • BRAWL STARS</span><span>SUCCÈS DÉBLOQUÉ</span></div>
+          <p class="eyebrow">🏆 TOUJOURS RAISON 🏆</p>
+          <h2 class="success">Réponse validée !</h2>
+          <div class="dialogue"><p>La machine affiche : « Erreur. La réponse était trop évidente. »</p></div>
+          ${button("Passer au dossier secret →", "start-detroit", "primary")}
+        `);
+        return;
+      }
+
+      if (state.screen === "detroit-intro") {
+        show(`
+          <div class="mission-bar"><span>NIVEAU 3 • DETROIT</span><span>FICHE ENQUÊTE</span></div>
+          <p class="eyebrow">DOSSIER CONFIDENTIEL</p>
+          <h2>Sujet : EKIN</h2>
+          <div class="profile-card">
+            <p><strong>Centres d’intérêt :</strong> les chats, Lana Del Rey et ses amies.</p>
+            <p><strong>Comportements suspects :</strong> toujours gentille, calme, élégante et ne panique presque jamais.</p>
+            <p><strong>Conclusion préliminaire :</strong> probablement un androïde.</p>
+          </div>
+          <div class="dialogue">
+            <p><strong>Ekin :</strong> « Pardon ? »</p>
+            <p><strong>Emma :</strong> « C’est vrai que c’est étrange. »</p>
+            <p><strong>Céline :</strong> « Les preuves sont accablantes. »</p>
+            <p><strong>Kiara :</strong> « Je l’avais dit. »</p>
+          </div>
+          ${button("Lancer l’analyse →", "start-detroit-question")}
+        `);
+        return;
+      }
+
+      if (state.screen === "detroit-question") {
+        show(`
+          <div class="mission-bar"><span>NIVEAU 3 • DETROIT</span><span>ANALYSE EN COURS</span></div>
+          <h2>Ekin est-elle humaine ?</h2>
+          <div class="choice-list">
+            ${button("A. Oui", "detroit-answer")}
+            ${button("B. Non", "detroit-answer")}
+            ${button("C. Peut-être", "detroit-answer")}
+            ${button("D. On ne saura jamais", "detroit-answer")}
+          </div>
+        `);
+        return;
+      }
+
+      if (state.screen === "detroit-analysis") {
+        show(`
+          <div class="mission-bar"><span>NIVEAU 3 • DETROIT</span><span>ANALYSE TERMINÉE</span></div>
+          <h2>Résultat de l’enquête</h2>
+          <div class="dialogue">
+            <p><strong>Réponse enregistrée :</strong> ${state.answer}</p>
+            <p><strong>Système :</strong> « Analyse impossible. Le sujet est beaucoup trop parfait pour être étudié. »</p>
+          </div>
+          <p>Les écrans s’éteignent. Dans le mur, une porte secrète vient d’apparaître.</p>
+          ${button("Examiner la porte mystérieuse →", "show-secret-door")}
+        `);
+        return;
+      }
+
+      if (state.screen === "secret-door") {
+        show(`
+          <div class="mission-bar"><span>NIVEAU SECRET</span><span>ACCÈS SPÉCIAL</span></div>
+          <div class="pixel-icon" aria-hidden="true">🐱</div>
+          <p class="eyebrow">UNE PORTE VIENT DE S’OUVRIR</p>
+          <h2>Réservé aux personnes aimant les chats</h2>
+          <p>Ekin entre et découvre un immense château rempli de chats. Un roi chat s’approche.</p>
+          <div class="dialogue">
+            <p><strong>Roi Chat :</strong> « Princesse Ekin, nous vous attendions. »</p>
+            <p>Tous les chats s’inclinent.</p>
+            <p><strong>Emma :</strong> « Je savais qu’il y avait quelque chose. »</p>
+            <p><strong>Céline :</strong> « Tout devient logique. »</p>
+            <p><strong>Kiara :</strong> « J’accepte cette explication. »</p>
+          </div>
+          ${button("Recevoir le titre royal 👑", "finish-game", "primary")}
+        `);
+        return;
+      }
+
+      if (state.screen === "ending") {
+        show(`
+          <div class="ending-screen">
+            <div class="pixel-icon" aria-hidden="true">👑🐱</div>
+            <p class="eyebrow">🏆 TITRE DÉBLOQUÉ 🏆</p>
+            <h1>FÉLICITATIONS !</h1>
+            <p><strong>Princesse Ekin,<br>Protectrice Suprême des Félins</strong></p>
+            <div class="dialogue">
+              <p>Vous avez retrouvé Céline, Emma et Kiara.</p>
+              <p>Vous avez survécu à Roblox et déjoué les statistiques de Brawl Stars.</p>
+              <p>Vous avez échappé à une enquête extrêmement douteuse.</p>
+              <p>Et vous avez obtenu l’approbation officielle du Royaume des Chats.</p>
+              <p><strong>Comment Kiara s’est-elle retrouvée sur ce toit ?<br>Personne ne le saura jamais.</strong></p>
+            </div>
+            <p>✨🐱👑💖 THE END 💖👑🐱✨</p>
+            ${button("↻ Rejouer", "restart", "primary")}
+          </div>
+        `, "AVENTURE TERMINÉE");
+      }
+    }
+
+    gameContent.addEventListener("click", (event) => {
+      const clickedButton = event.target.closest("[data-action]");
+      if (!clickedButton) return;
+
+      switch (clickedButton.dataset.action) {
+        case "enter":
+          state.screen = "intro";
+          break;
+        case "start-roblox":
+          state.screen = "roblox-roof";
+          break;
+        case "go-medical":
+          state.screen = "medical";
+          break;
+        case "find-celine":
+          state.found.push("Céline");
+          state.screen = "control-room";
+          break;
+        case "find-emma":
+          state.found.push("Emma");
+          state.screen = "kiara-roof";
+          break;
+        case "find-kiara":
+          state.found.push("Kiara");
+          state.screen = "brawl-intro";
+          break;
+        case "start-brawl":
+          state.screen = "brawl-question";
+          break;
+        case "brawl-wrong":
+          state.screen = "brawl-wrong";
+          break;
+        case "brawl-correct":
+          state.screen = "brawl-success";
+          break;
+        case "start-detroit":
+          state.screen = "detroit-intro";
+          break;
+        case "start-detroit-question":
+          state.screen = "detroit-question";
+          break;
+        case "detroit-answer":
+          state.answer = clickedButton.textContent.trim();
+          state.screen = "detroit-analysis";
+          break;
+        case "show-secret-door":
+          state.screen = "secret-door";
+          break;
+        case "finish-game":
+          state.screen = "ending";
+          break;
+        case "restart":
+          state.found = [];
+          state.answer = "";
+          state.screen = "intro";
+          break;
+      }
+
+      render();
+      gameContent.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    render();
+  </script>
+</body>
+</html>

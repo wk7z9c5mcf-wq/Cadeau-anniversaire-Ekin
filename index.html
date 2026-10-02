@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Enter Code — Dossier Secret</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+
+  <style>
+
+    .login-container {
+      position: relative !important;
+      width: min(310px, 92vw) !important;
+      min-height: 520px !important;
+      padding: 38px 28px 28px !important;
+      border: 6px solid #49372c !important;
+      border-radius: 42px !important;
+      outline: 3px solid #f1e4cb !important;
+      background: linear-gradient(145deg, #d7c4a1, #aa9273) !important;
+      box-shadow: 0 18px 32px #0006 !important;
+      color: #49372c !important;
+      text-align: center !important;
+    }
+
+    .login-container::before {
+      content: "";
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      width: 48px;
+      height: 7px;
+      border-radius: 8px;
+      background: #49372c;
+      transform: translateX(-50%);
+    }
+
+    .login-container h1 {
+      margin: 6px 0 8px !important;
+      color: #49372c !important;
+      font-size: 27px !important;
+    }
+
+    .login-container .hint {
+      margin: 0 0 14px !important;
+      color: #49372c !important;
+      font-size: 13px !important;
+      font-style: italic;
+    }
+
+    .code-display {
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      gap: 7px !important;
+      width: 100% !important;
+      margin: 14px auto 16px !important;
+    }
+
+    .code-slot {
+      display: grid !important;
+      place-items: center !important;
+      width: 40px !important;
+      height: 42px !important;
+      padding: 0 !important;
+      border: 1px solid #6a594b !important;
+      border-radius: 9px !important;
+      background: #f1e8d8 !important;
+      color: #91485a !important;
+      font-size: 22px !important;
+      line-height: 1 !important;
+    }
+
+    .keypad {
+      display: grid !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 8px !important;
+      width: 210px !important;
+      margin: 0 auto 16px !important;
+      padding: 11px !important;
+      border: 2px solid #88745e !important;
+      border-radius: 22px !important;
+      background: #bca88c !important;
+    }
+
+    .keypad button {
+      min-height: 43px !important;
+      border: 1px solid #705e4c !important;
+      border-radius: 12px !important;
+      background: linear-gradient(#f4ead7, #d0bea0) !important;
+      color: #49372c !important;
+      box-shadow: 0 3px 0 #766450 !important;
+      cursor: pointer;
+    }
+
+    .keypad button:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #766450 !important;
+    }
+
+    .enter-button {
+      padding: 9px 23px !important;
+      border: 1px solid #49372c !important;
+      border-radius: 20px !important;
+      background: #796248 !important;
+      color: #fff5e8 !important;
+      font-weight: bold !important;
+      cursor: pointer;
+    }
+
+    #accessMessage {
+      min-height: 20px;
+      color: #49372c;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<script>
+  const music = new Audio("musique.mp3");
+  const musicKey = "anniversaire-ekin-musique";
+  const savedTime = Number(localStorage.getItem(musicKey) || 0);
+
+  music.loop = true;
+  music.preload = "auto";
+
+  music.addEventListener("loadedmetadata", () => {
+    if (savedTime < music.duration) music.currentTime = savedTime;
+  }, { once: true });
+
+  async function startMusic() {
+    try {
+      await music.play();
+    } catch {
+      // Le navigateur attendra une interaction de l’utilisateur.
+    }
+  }
+
+  window.addEventListener("pointerdown", startMusic);
+  window.addEventListener("keydown", startMusic);
+  window.addEventListener("load", startMusic);
+
+  function saveMusicPosition() {
+    if (!music.paused) localStorage.setItem(musicKey, music.currentTime);
+  }
+
+  window.addEventListener("pagehide", saveMusicPosition);
+  setInterval(saveMusicPosition, 1000);
+</script>
+<script src="musique.js"></script>
+<body class="login-page">
+  <main class="login-container">
+    <h1>Enter Code</h1>
+    <p class="hint">Indice : entre le code secret.</p>
+
+    <div class="code-display" aria-label="Code saisi">
+      <span class="code-slot">♥</span>
+      <span class="code-slot">♥</span>
+      <span class="code-slot">♥</span>
+      <span class="code-slot">♥</span>
+    </div>
+
+    <input id="codeInput" type="hidden">
+
+    <div class="keypad">
+      <button type="button" onclick="addNumber('1')">1</button>
+      <button type="button" onclick="addNumber('2')">2</button>
+      <button type="button" onclick="addNumber('3')">3</button>
+      <button type="button" onclick="addNumber('4')">4</button>
+      <button type="button" onclick="addNumber('5')">5</button>
+      <button type="button" onclick="addNumber('6')">6</button>
+      <button type="button" onclick="addNumber('7')">7</button>
+      <button type="button" onclick="addNumber('8')">8</button>
+      <button type="button" onclick="addNumber('9')">9</button>
+      <button type="button" onclick="deleteLastDigit()" aria-label="Effacer le dernier chiffre">·</button>
+      <button type="button" onclick="addNumber('0')">0</button>
+      <button type="button" onclick="clearCode()">DEL</button>
+    </div>
+
+    <button class="enter-button" type="button" onclick="checkCode()">Entrer</button>
+    <p id="accessMessage" aria-live="polite"></p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notre galaxie d’amour</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      background: #08050d;
+      color: #fff4fa;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    button { font: inherit; cursor: pointer; }
+
+    .question {
+      position: fixed;
+      z-index: 2;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: radial-gradient(ellipse, #32152b, #100914 55%, #08050d);
+      text-align: center;
+      transition: opacity .8s, visibility .8s;
+    }
+
+    .question.leaving { opacity: 0; visibility: hidden; }
+    .question-card { width: min(500px, 100%); }
+
+    .question-heart {
+      color: #ff5caa;
+      font-size: 64px;
+      filter: drop-shadow(0 0 24px #ff4eaa);
+      animation: beat 1.2s infinite;
+    }
+
+    h1 {
+      color: #ffe3f1;
+      font-size: clamp(36px, 8vw, 60px);
+      text-shadow: 0 0 24px #fa53a7aa;
+    }
+
+    .question p { color: #e8c8dc; }
+
+    .answers {
+      position: relative;
+      width: min(360px, 90vw);
+      height: 120px;
+      margin: 22px auto 0;
+    }
+
+    .answer {
+      position: absolute;
+      top: 22px;
+      min-width: 118px;
+      padding: 13px 23px;
+      border: 1px solid #ffb1d4;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #f262a5, #a93b83);
+      box-shadow: 0 0 22px #ff54a866;
+      color: white;
+      font-weight: bold;
+    }
+
+    #yesButton { left: 12%; }
+
+    #noButton {
+      left: 56%;
+      background: #39303b;
+      border-color: #9d8297;
+      transition: left .35s ease, top .35s ease;
+    }
+
+    .galaxy {
+      position: fixed;
+      z-index: 1;
+      inset: 0;
+      overflow: hidden;
+      visibility: hidden;
+      opacity: 0;
+      background: radial-gradient(ellipse, #170b20, #08050d 70%);
+      transition: opacity 1s, visibility 1s;
+    }
+
+    .galaxy.visible { visibility: visible; opacity: 1; }
+
+    #space {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .galaxy-title {
+      position: absolute;
+      z-index: 1;
+      top: 5vh;
+      width: 100%;
+      padding: 0 16px;
+      color: #ffe1f0;
+      text-align: center;
+      text-shadow: 0 0 18px #ff62ae;
+      pointer-events: none;
+    }
+
+    .galaxy-title h2 {
+      margin: 0 0 8px;
+      font-size: clamp(23px, 5vw, 38px);
+    }
+
+    .galaxy-title p { margin: 0; color: #e8c8dc; }
+
+    .messages {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .messages span {
+      position: absolute;
+      color: #ffd5e9;
+      font-size: clamp(12px, 2vw, 20px);
+      font-weight: bold;
+      text-shadow: 0 0 14px #ff4fa8;
+      animation: drift 8s ease-in-out infinite alternate;
+    }
+
+    .messages span:nth-child(1) { top: 24%; left: 7%; }
+    .messages span:nth-child(2) { top: 37%; right: 6%; animation-delay: -2s; }
+    .messages span:nth-child(3) { bottom: 25%; left: 7%; animation-delay: -4s; }
+    .messages span:nth-child(4) { bottom: 14%; right: 5%; animation-delay: -6s; }
+    .messages span:nth-child(5) { top: 70%; left: 41%; animation-delay: -3s; }
+
+    .world-button {
+      position: absolute;
+      z-index: 2;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--heart-color);
+      font-size: 30px;
+      filter: drop-shadow(0 0 9px currentColor);
+      transform: translate(-50%, -50%);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .world-button:hover { scale: 1.3; }
+    .world-button.gold { --heart-color: #ffe38a; }
+    .world-button.pink { --heart-color: #ff8fc8; }
+    .world-button.violet { --heart-color: #d3a2ff; }
+
+    .world-button small {
+      position: absolute;
+      top: 38px;
+      left: 50%;
+      width: 120px;
+      color: white;
+      font-size: 11px;
+      text-shadow: 0 1px 8px #000;
+      transform: translateX(-50%);
+    }
+
+    .hall-button {
+      position: absolute;
+      z-index: 3;
+      bottom: 20px;
+      left: 20px;
+      padding: 10px 16px;
+      border: 1px solid #ffb1d4aa;
+      border-radius: 24px;
+      background: #261326dd;
+      color: #ffe1f0;
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    .music-button {
+      position: absolute;
+      z-index: 3;
+      right: 20px;
+      bottom: 20px;
+      padding: 10px 16px;
+      border: 1px solid #ffb1d4aa;
+      border-radius: 24px;
+      background: #261326dd;
+      color: #ffe1f0;
+    }
+
+    .photo-modal {
+      position: fixed;
+      z-index: 5;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: #05030bd9;
+      backdrop-filter: blur(10px);
+    }
+
+    .photo-modal[hidden] { display: none; }
+
+    .photo-card {
+      position: relative;
+      width: min(680px, 100%);
+      max-height: 92vh;
+      overflow: auto;
+      padding: 18px;
+      border: 1px solid #f08abd99;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #29152b, #120c1b);
+      text-align: center;
+    }
+
+    .photo-card h2 { color: #ffd6eb; }
+
+    .photo-card img {
+      max-width: 100%;
+      max-height: 68vh;
+      border-radius: 10px;
+      object-fit: contain;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      width: 38px;
+      height: 38px;
+      border: 1px solid #ffd5eb66;
+      border-radius: 50%;
+      background: #57244a;
+      color: white;
+      font-size: 22px;
+    }
+
+    .photo-navigation {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 12px;
+    }
+
+    .photo-navigation button {
+      width: 42px;
+      height: 42px;
+      border: 1px solid #f08abd99;
+      border-radius: 50%;
+      background: #57244a;
+      color: white;
+      font-size: 20px;
+    }
+
+    .photo-error { color: #ffd2e6; }
+
+    @keyframes beat { 50% { transform: scale(1.13); } }
+    @keyframes float { 50% { translate: 0 -8px; } }
+    @keyframes drift { to { transform: translate(14px, -10px); opacity: .6; } }
+
+    @media (max-width: 600px) {
+      .galaxy-title { top: 3vh; }
+      .messages span { font-size: 11px; }
+      .messages span:nth-child(5) { left: 35%; }
+      .world-button { font-size: 26px; }
+      .hall-button { bottom: 12px; left: 12px; }
+      .music-button { right: 12px; bottom: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <section class="question" id="question">
+    <div class="question-card">
+      <div class="question-heart">♥</div>
+      <h1>Tu nous aimes ?</h1>
+      <p>Réponds honnêtement… 💌</p>
+      <div class="answers" id="answers">
+        <button class="answer" id="yesButton" type="button">OUI 💖</button>
+        <button class="answer" id="noButton" type="button">NON 🙃</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="galaxy" id="galaxy">
+    <canvas id="space"></canvas>
+
+    <header class="galaxy-title">
+      <h2>Notre galaxie d’amour</h2>
+      <p>Choisis un petit cœur pour découvrir ses photos ✨</p>
+    </header>
+
+    <div class="messages" aria-hidden="true">
+      <span>On t’aime 💗</span>
+      <span>T’es la meilleure ✨</span>
+      <span>Tu rends tout plus beau 💖</span>
+      <span>On a beaucoup de chance de t’avoir 💫</span>
+      <span>Ne change jamais 💕</span>
+    </div>
+
+    <div id="worldButtons"></div>
+    <a class="hall-button" id="hallButton" href="accueil.html">← Retour au hall</a>
+  </main>
+
+  <section class="photo-modal" id="photoModal" hidden>
+    <div class="photo-card">
+      <button class="close-button" id="closeModal" type="button" aria-label="Fermer">×</button>
+      <h2 id="photoTitle"></h2>
+      <img id="photoImage" alt="">
+      <p class="photo-error" id="photoError" hidden>Photo introuvable : vérifie son chemin.</p>
+      <div class="photo-navigation">
+        <button id="previousPhoto" type="button" aria-label="Photo précédente">←</button>
+        <button id="nextPhoto" type="button" aria-label="Photo suivante">→</button>
+      </div>
+    </div>
+  </section>
+
+  <audio
+    id="pageMusic"
+    src="image/Lana%20Del%20Rey%20-%20Brooklyn%20Baby%20(Official%20Audio).mp3"
+    preload="auto"
+    loop>
+  </audio>
+
+  <script>
+    const question = document.getElementById("question");
+    const galaxy = document.getElementById("galaxy");
+    const canvas = document.getElementById("space");
+    const ctx = canvas.getContext("2d");
+    const answerArea = document.getElementById("answers");
+    const noButton = document.getElementById("noButton");
+    const yesButton = document.getElementById("yesButton");
+    const worldButtons = document.getElementById("worldButtons");
+    const modal = document.getElementById("photoModal");
+    const photoImage = document.getElementById("photoImage");
+    const photoError = document.getElementById("photoError");
+    const pageMusic = document.getElementById("pageMusic");
+
+    const worlds = [
+      {
+        name: "Princesse Ekin",
+        color: "gold",
+        x: 14,
+        y: 43,
+        images: ["image/Designer (4).png"]
+      },
+      {
+        name: "Ekin Meowlight",
+        color: "violet",
+        x: 86,
+        y: 42,
+        images: ["image/Designer (1).png"]
+      },
+      {
+        name: "Vintage Sparkle",
+        color: "pink",
+        x: 17,
+        y: 78,
+        images: ["image/Designer 5.png"]
+      },
+      {
+        name: "Apocalypse zombie",
+        color: "gold",
+        x: 84,
+        y: 78,
+        images: ["image/Designer (2).png"]
+      }
+    ];
+
+    let width = 0;
+    let height = 0;
+    let stars = [];
+    let particles = [];
+    let burstHearts = [];
+    let startedAt = 0;
+    let frame = 0;
+    let lastNoMove = 0;
+    let currentWorld = null;
+    let photoIndex = 0;
+
+    function resizeCanvas() {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      width = innerWidth;
+      height = innerHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      stars = Array.from({ length: 180 }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        size: Math.random() * 1.5 + .3,
+        phase: Math.random() * 6
+      }));
+
+      particles = [];
+      while (particles.length < 700) {
+        const x = Math.random() * 2.8 - 1.4;
+        const y = Math.random() * 2.6 - 1.3;
+        if ((x * x + y * y - 1) ** 3 - x * x * y ** 3 > 0) continue;
+
+        particles.push({
+          x,
+          y,
+          z: Math.random() * 2 - 1,
+          size: 1 + Math.random() * 2,
+          hue: Math.random() > .2 ? 330 + Math.random() * 25 : 285,
+          phase: Math.random() * 6
+        });
+      }
+
+      burstHearts = Array.from({ length: 300 }, (_, i) => ({
+        angle: i * 2.399,
+        delay: Math.random() * .35,
+        size: 2 + Math.random() * 4,
+        hue: 315 + Math.random() * 55
+      }));
+    }
+
+    function heart(x, y, size, hue, alpha = 1, glow = 8) {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+      ctx.fillStyle = `hsl(${hue} 95% 72%)`;
+      ctx.shadowColor = ctx.fillStyle;
+      ctx.shadowBlur = glow;
+      ctx.font = `${Math.max(5, size * 2)}px serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("♥", x, y);
+      ctx.restore();
+    }
+
+    function drawBackground(time) {
+      ctx.fillStyle = "rgba(7, 4, 13, .25)";
+      ctx.fillRect(0, 0, width, height);
+
+      for (const star of stars) {
+        ctx.globalAlpha = .45 + .4 * Math.sin(time * .001 + star.phase);
+        ctx.fillStyle = "#fff4fc";
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
+    }
+
+    function drawBurst(progress, time) {
+      const cx = width / 2;
+      const cy = height / 2;
+      const distance = Math.hypot(width, height);
+
+      for (const item of burstHearts) {
+        const p = Math.max(0, Math.min(1, (progress - item.delay) / (1 - item.delay)));
+        if (!p) continue;
+
+        const travel = p * p * distance;
+        const angle = item.angle + p * 3 + time * .0001;
+
+        heart(
+          cx + Math.cos(angle) * travel,
+          cy + Math.sin(angle) * travel,
+          item.size * (.7 + p * 2.5),
+          item.hue,
+          1 - p * .5,
+          12
+        );
+      }
+    }
+
+    function heartScale() {
+      return Math.min(width / 4, height / 3.5);
+    }
+
+    function drawFormingHeart(progress, time) {
+      const cx = width / 2;
+      const cy = height / 2;
+      const scale = heartScale();
+      const p = progress * progress * (3 - 2 * progress);
+
+      for (const item of particles) {
+        const angle = Math.atan2(item.y, item.x) + (1 - p) * 5;
+        const radius = Math.hypot(item.x, item.y) * (1 + (1 - p));
+        const x = Math.cos(angle) * radius * (1 - p) + item.x * p;
+        const y = Math.sin(angle) * radius * (1 - p) + item.y * p;
+        const flicker = .65 + .35 * Math.sin(time * .003 + item.phase);
+
+        heart(cx + x * scale, cy - y * scale, item.size, item.hue, flicker, 9);
+      }
+    }
+
+    function drawGalaxy(time) {
+      const cx = width / 2;
+      const cy = height / 2;
+      const scale = heartScale() * .82;
+
+      for (let arm = 0; arm < 4; arm++) {
+        for (let i = 0; i < 90; i++) {
+          const p = i / 90;
+          const angle = arm * Math.PI / 2 + p * 5 - time * .00013;
+          const radius = scale * (1.35 + p * 2);
+
+          heart(
+            cx + Math.cos(angle) * radius,
+            cy + Math.sin(angle) * radius * .58,
+            1.2 + p,
+            arm % 2 ? 45 : 330,
+            .25 + .5 * Math.abs(Math.sin(time * .001 + i)),
+            5
+          );
+        }
+      }
+
+      for (const item of particles) {
+        const a = time * .00012 + item.z * .2;
+        const x = item.x * Math.cos(a) - item.z * .12 * Math.sin(a);
+        const pulse = .85 + .15 * Math.sin(time * .002 + item.phase);
+
+        heart(
+          cx + x * scale,
+          cy - item.y * scale,
+          item.size * pulse,
+          item.hue,
+          .8,
+          10
+        );
+      }
+    }
+
+    function animate(time) {
+      if (!startedAt) startedAt = time;
+
+      const elapsed = time - startedAt;
+      drawBackground(time);
+
+      if (elapsed < 2000) {
+        drawBurst(elapsed / 2000, time);
+      } else if (elapsed < 5600) {
+        drawFormingHeart((elapsed - 2000) / 3600, time);
+      } else {
+        drawGalaxy(time);
+        galaxy.classList.add("ready");
+      }
+
+      frame = requestAnimationFrame(animate);
+    }
+
+    function startExperience() {
+      resizeCanvas();
+      question.classList.add("leaving");
+      galaxy.classList.add("visible");
+      galaxy.classList.remove("ready");
+      startedAt = 0;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(animate);
+
+      // Le clic sur OUI autorise le navigateur à lancer la musique.
+      pageMusic.play().catch((error) => {
+        console.warn("La musique n’a pas pu démarrer :", error);
+      });
+    }
+
+    yesButton.addEventListener("click", startExperience);
+
+    function moveNoButton(pointerX, pointerY) {
+      const area = answerArea.getBoundingClientRect();
+      const buttonWidth = noButton.offsetWidth;
+      const buttonHeight = noButton.offsetHeight;
+      let best = { x: 0, y: 0 };
+      let farthest = -1;
+
+      for (let i = 0; i < 20; i++) {
+        const x = Math.random() * Math.max(1, area.width - buttonWidth);
+        const y = Math.random() * Math.max(1, area.height - buttonHeight);
+        const distance = Math.hypot(
+          area.left + x + buttonWidth / 2 - pointerX,
+          area.top + y + buttonHeight / 2 - pointerY
+        );
+
+        if (distance > farthest) {
+          farthest = distance;
+          best = { x, y };
+        }
+      }
+
+      noButton.style.left = `${best.x}px`;
+      noButton.style.top = `${best.y}px`;
+    }
+
+    answerArea.addEventListener("pointermove", (event) => {
+      const rect = noButton.getBoundingClientRect();
+      const distance = Math.hypot(
+        event.clientX - (rect.left + rect.width / 2),
+        event.clientY - (rect.top + rect.height / 2)
+      );
+
+      if (distance < 100 && performance.now() - lastNoMove > 350) {
+        lastNoMove = performance.now();
+        moveNoButton(event.clientX, event.clientY);
+      }
+    });
+
+    noButton.addEventListener("pointerenter", (event) => {
+      lastNoMove = performance.now();
+      moveNoButton(event.clientX, event.clientY);
+    });
+
+    function showPhoto() {
+      const paths = currentWorld.images;
+      photoImage.hidden = false;
+      photoError.hidden = true;
+      photoImage.alt = `Photo ${photoIndex + 1} de ${currentWorld.name}`;
+
+      photoImage.onerror = () => {
+        photoImage.hidden = true;
+        photoError.hidden = false;
+      };
+
+      photoImage.src = paths[photoIndex];
+      document.getElementById("photoTitle").textContent =
+        `${currentWorld.name} • ${photoIndex + 1}/${paths.length}`;
+      document.getElementById("previousPhoto").disabled = photoIndex === 0;
+      document.getElementById("nextPhoto").disabled = photoIndex === paths.length - 1;
+    }
+
+    worlds.forEach((world, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `world-button ${world.color}`;
+      button.style.left = `${world.x}%`;
+      button.style.top = `${world.y}%`;
+      button.style.animationDelay = `${index * -.7}s`;
+      button.setAttribute("aria-label", `Photos : ${world.name}`);
+      button.innerHTML = `♥<small>${world.name}</small>`;
+
+      button.addEventListener("click", () => {
+        currentWorld = world;
+        photoIndex = 0;
+        showPhoto();
+        modal.hidden = false;
+      });
+
+      worldButtons.appendChild(button);
+    });
+
+    document.getElementById("previousPhoto").addEventListener("click", () => {
+      if (photoIndex > 0) {
+        photoIndex--;
+        showPhoto();
+      }
+    });
+
+    document.getElementById("nextPhoto").addEventListener("click", () => {
+      if (photoIndex < currentWorld.images.length - 1) {
+        photoIndex++;
+        showPhoto();
+      }
+    });
+
+    function closePhotos() {
+      modal.hidden = true;
+    }
+
+    document.getElementById("closeModal").addEventListener("click", closePhotos);
+
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closePhotos();
+    });
+
+    window.addEventListener("resize", resizeCanvas);
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closePhotos();
+    });
+  </script>
+</body>
+</html>

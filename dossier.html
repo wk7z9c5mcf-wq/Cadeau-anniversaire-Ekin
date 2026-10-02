@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dossier secret Ekin</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<script src="musique.js"></script>
+<body class="dossier-page">
+  <main class="page dossier">
+
+    <section class="folder-cover" aria-label="Couverture du dossier secret">
+      <div class="folder-tab">DOSSIER PERSONNEL</div>
+      <div class="cover-content">
+        <p class="stamp">CONFIDENTIEL</p>
+        <h1>TOP SECRET</h1>
+        <p class="cover-subtitle">Les souvenirs d’Ekin &amp; ses amies</p>
+        <img class="cover-photo" src="image/WhatsApp Image 2026-10-02 at 01.59.34.jpeg" alt="Photo d’Ekin">
+        <button class="button open-button" id="openFolder" type="button"
+                aria-expanded="false" aria-controls="secretContent">
+          Ouvrir le dossier
+        </button>
+      </div>
+      <span class="paper-clip" aria-hidden="true">⌇</span>
+    </section>
+
+    <section class="secret-content" id="secretContent" hidden>
+      <h2>Nos souvenirs 📸</h2>
+      <p class="gallery-intro">Quelques moments précieux ensemble.</p>
+
+      <audio id="memoryMusic" controls loop preload="metadata">
+        <source src="image/Young And Beautiful.mp3" type="audio/mpeg">
+        Ton navigateur ne prend pas en charge la lecture audio.
+      </audio>
+      <p class="music-note" id="musicNote" aria-live="polite"></p>
+
+      <div class="memory-gallery">
+        <figure><img src="image/2.jpeg" alt="Souvenir entre amies"><figcaption>Un beau souvenir ♡</figcaption></figure>
+        <figure><img src="image/WhatsApp Image 2026-10-02 at 01.59.33.jpeg" alt="Photo de nous"><figcaption>Entre nous ✨</figcaption></figure>
+        <figure><img src="image/WhatsApp Image 2026-10-02 at 01.59.332.jpeg" alt="Moment partagé"><figcaption>Les copines 💌</figcaption></figure>
+        <figure><img src="image/WhatsApp Image 2026-10-02 at 01.59.331.jpeg" alt="Souvenir avec les copines"><figcaption>À ne jamais oublier</figcaption></figure>
+         <figure><img src="image/WhatsApp Image 2026-10-02 at 02.06.13.jpeg" alt="Un autre souvenir"><figcaption>Notre moment préféré</figcaption></figure>
+        <figure><img src="image/WhatsApp Image 2026-10-02 at 02.04.15.jpeg" alt="Photo souvenir"><figcaption>Encore nous 🌷</figcaption></figure>
+      </div>
+
+      <a class="button back-button" href="accueil.html">← Retour au hall</a>
+    </section>
+  </main>
+
+<script>
+  const openButton = document.getElementById("openFolder");
+  const secretContent = document.getElementById("secretContent");
+  const lanaMusic = document.getElementById("memoryMusic");
+  const musicNote = document.getElementById("musicNote");
+
+  openButton.addEventListener("click", async () => {
+    if (typeof window.pauseBackgroundMusic === "function") {
+      window.pauseBackgroundMusic();
+    }
+
+    secretContent.hidden = false;
+    openButton.setAttribute("aria-expanded", "true");
+    openButton.textContent = "Dossier ouvert ✓";
+
+    try {
+      await lanaMusic.play();
+      musicNote.textContent = "La musique de vos souvenirs est lancée ♫";
+    } catch {
+      musicNote.textContent = "Clique sur lecture pour démarrer la musique.";
+    }
+
+    secretContent.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+</script>
+</body>
+</html>

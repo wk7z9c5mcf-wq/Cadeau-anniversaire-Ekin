@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Univers parallèles</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<script src="musique.js"></script>
+<body class="univers-page">
+  <main class="univers-container">
+    <header class="univers-header">
+      <p class="eyebrow">✦ DOSSIER COSMIQUE ✦</p>
+      <h1>Univers parallèles</h1>
+      <p>Choisis une planète pour découvrir un autre monde…</p>
+    </header>
+
+    <section class="galaxy" aria-label="Choisir un univers">
+      <div class="orbit orbit-one">
+        <button class="planet planet-princess" data-universe="princesse"
+          aria-label="Découvrir Princesse Ekin">👑</button>
+      </div>
+      <div class="orbit orbit-two">
+        <button class="planet planet-witch" data-universe="sorciere"
+          aria-label="Découvrir Ekin Meowlight">🐈‍⬛</button>
+      </div>
+      <div class="orbit orbit-three">
+        <button class="planet planet-vintage" data-universe="vintage"
+          aria-label="Découvrir Princess Vintage Sparkle">🎀</button>
+      </div>
+      <div class="orbit orbit-four">
+        <button class="planet planet-zombie" data-universe="zombie"
+          aria-label="Découvrir l’apocalypse zombie">🧟</button>
+      </div>
+      <div class="galaxy-core" aria-hidden="true">✦</div>
+    </section>
+
+    <p class="galaxy-hint">Clique sur une planète pour l’explorer</p>
+
+    <section class="universe-detail" id="universeDetail" hidden aria-live="polite">
+      <div class="detail-image-frame">
+        <img id="universeImage" src="" alt="">
+        <p id="imageFallback" hidden>
+          Ajoute la photo de cet univers dans le dossier indiqué ✨
+        </p>
+      </div>
+
+      <div class="detail-copy">
+        <p class="eyebrow" id="universeLabel">UNIVERS DÉCOUVERT</p>
+        <h2 id="universeTitle"></h2>
+        <div class="description-paragraphs" id="universeDescription"></div>
+      </div>
+    </section>
+
+    <a class="universe-back" href="accueil.html">← Retour au hall</a>
+  </main>
+
+  <script>
+    const univers = {
+      princesse: {
+        titre: "Princesse Ekin",
+        etiquette: "ROYAUME DES CHATS",
+        paragraphes: [
+          "Dans un royaume secret, caché bien au-delà des cartes de Disney, s'élève un majestueux château où les chats occupent les plus hautes fonctions du royaume. Depuis des siècles, une ancienne légende raconte qu'une princesse possède le pouvoir extraordinaire de comprendre la langue oubliée des félins.",
+          "Grâce à un don rare offert par les étoiles, la princesse Ekin peut communiquer avec les chats et veille à préserver l'harmonie entre les humains et leurs mystérieux compagnons à quatre pattes. Chaque soir, les habitants du royaume se réunissent dans la grande cour du château pour écouter les récits fascinants rapportés par les chats voyageurs revenus des quatre coins du monde.",
+          "Courageuse et bienveillante, Ekin parcourt sans relâche les terres enchantées pour résoudre d'étranges mystères, protéger les créatures magiques et venir en aide à ceux qui en ont besoin.",
+          "À travers chacune de ses aventures, elle rappelle à tous une vérité essentielle : aucune histoire n'est vraiment extraordinaire sans un chat pour la partager à ses côtés. ✨🐱👑💫"
+        ],
+        image: "image/Designer (4).png",
+        alt: "Ekin dans son univers de princesse"
+      },
+
+      sorciere: {
+        titre: "Ekin Meowlight",
+        etiquette: "FORÊT ENSORCELÉE",
+        paragraphes: [
+          "À Monster High, tout le monde connaît Ekin Meowlight. Mi-sorcière, mi-légende, elle traverse les couloirs de l'école avec une élégance mystérieuse, toujours accompagnée de son fidèle chat noir. Là où elle passe, les rumeurs naissent et les secrets semblent murmurer son nom.",
+          "Entre deux cours de magie et quelques expériences enchantées, Ekin collectionne les mystères surnaturels, déchiffre d'anciens grimoires et maîtrise des sortilèges si rares que même les professeurs préfèrent ne pas poser de questions. Son regard malicieux et son calme légendaire cachent un pouvoir que peu d'élèves osent défier.",
+          "Aux côtés de son inséparable compagnon félin, elle explore les recoins les plus secrets de Monster High, résout des énigmes oubliées et découvre des vérités que personne n'aurait imaginées.",
+          "Ensemble, ils forment un duo aussi fascinant qu'inarrêtable, devenu au fil du temps l'une des plus grandes légendes de l'école. Car à Monster High, lorsqu'un mystère apparaît, Ekin Meowlight et son chat ne sont jamais très loin… ✨🐈‍⬛🔮🖤"
+        ],
+        image: "image/Designer (1).png",
+        alt: "Ekin dans son univers de sorcière"
+      },
+
+      vintage: {
+        titre: "Princess Vintage Sparkle",
+        etiquette: "GALAXIE RÉTRO",
+        paragraphes: [
+          "Dans les terres enchantées d'Equestria, nul n'ignore le nom de Princess Vintage Sparkle. Connue pour son élégance intemporelle et son amour des trésors du passé, elle parcourt le royaume avec une collection de vinyles magiques qui renferment les plus belles mélodies jamais entendues.",
+          "Dotée d'un talent unique, Vintage Sparkle tisse la magie et la musique comme personne. D'un simple éclat de sa corne, elle illumine le ciel de constellations dansantes qui scintillent au rythme des chansons.",
+          "Et lorsque le moment est parfait, une douce mélodie de Lana Del Rey semble apparaître comme par enchantement, transformant l'instant en un souvenir inoubliable. Entre soirées étoilées, aventures ponyriques et éclats de paillettes, elle apporte partout une touche de rêve et de nostalgie.",
+          "Les habitants d'Equestria aiment raconter que sa magie ne crée pas seulement de la lumière ou de la musique : elle crée des émotions, des souvenirs et des moments que l'on garde précieusement dans son cœur. Avec Princess Vintage Sparkle, même les journées ordinaires deviennent de véritables contes de poney. ✨🦄💿🌙💖"
+        ],
+        image: "image/Designer 5.png",
+        alt: "Ekin dans son univers vintage"
+      },
+
+      zombie: {
+        titre: "Apocalypse zombie",
+        etiquette: "MISSION SURVIE",
+        paragraphes: [
+          "Lorsque l'apocalypse zombie s'abat sur Roblox, la plupart des joueurs prennent la fuite. Mais quatre survivantes refusent d'abandonner. Au milieu du chaos, des hordes de zombies et des villes en ruines, Ekin prend naturellement les commandes du groupe.",
+          "Courageuse et déterminée, elle guide ses amies à travers les situations les plus dangereuses avec un sang-froid impressionnant. À ses côtés, Céline élabore des stratégies aussi ingénieuses qu'efficaces. Qu'il s'agisse de trouver un refuge, de récupérer des ressources ou d'échapper aux zombies, elle semble toujours avoir un plan prêt au bon moment.",
+          "Emma, quant à elle, veille sur tout le monde. Toujours équipée de fournitures médicales, elle soigne les blessés, rassure le groupe dans les moments difficiles et s'assure que personne ne soit laissé derrière.",
+          "Et puis il y a Kiara. Personne ne sait exactement quelle est sa stratégie, ni même si elle en a une. Ses idées semblent parfois catastrophiques : entrer dans un bâtiment rempli de zombies, appuyer sur le mauvais bouton ou suivre un chemin inconnu. Pourtant, ses décisions improbables finissent régulièrement par sauver la situation.",
+          "Entre plans brillants, improvisations douteuses et fuites spectaculaires, les quatre amies continuent de survivre. Tant qu'elles restent ensemble, l'apocalypse n'a qu'à bien se tenir. 🧟‍♀️🎮✨"
+        ],
+        image: "image/Designer (2).png",
+        alt: "Les amies dans l’univers de l’apocalypse zombie"
+      }
+    };
+
+    const detail = document.getElementById("universeDetail");
+    const image = document.getElementById("universeImage");
+    const fallback = document.getElementById("imageFallback");
+    const description = document.getElementById("universeDescription");
+
+    document.querySelectorAll(".planet").forEach((planet) => {
+      planet.addEventListener("click", () => {
+        const choix = univers[planet.dataset.universe];
+        if (!choix) return;
+
+        detail.hidden = false;
+        detail.className = `universe-detail theme-${planet.dataset.universe}`;
+
+        document.getElementById("universeLabel").textContent = choix.etiquette;
+        document.getElementById("universeTitle").textContent = choix.titre;
+
+        description.replaceChildren();
+
+        choix.paragraphes.forEach((texte) => {
+          const paragraphe = document.createElement("p");
+          paragraphe.textContent = texte;
+          description.appendChild(paragraphe);
+        });
+
+        image.hidden = false;
+        fallback.hidden = true;
+        image.alt = choix.alt;
+        image.onerror = () => {
+          image.hidden = true;
+          fallback.hidden = false;
+        };
+        image.src = choix.image;
+
+        document.querySelectorAll(".planet").forEach((autrePlanete) => {
+          autrePlanete.classList.toggle("selected", autrePlanete === planet);
+        });
+
+        detail.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    });
+  </script>
+</body>
+</html>

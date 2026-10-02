@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0a14">
+  <title>EKIN.EXE — L’énigme de la fête</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f7f2ff;
+      --muted: #c9bfdc;
+      --pink: #ff8ecb;
+      --blue: #8bcaff;
+      --green: #9ce6bd;
+      --panel: #17152a;
+      --line: #ffffff24;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 50% 0%, #44326b 0, transparent 45%),
+        #0b0a14;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    button, input { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    .topbar {
+      position: sticky;
+      z-index: 5;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px clamp(14px, 4vw, 40px);
+      border-bottom: 1px solid var(--line);
+      background: #0b0a14ed;
+      backdrop-filter: blur(12px);
+    }
+
+    .brand {
+      color: #ffe0f1;
+      font-weight: 900;
+      letter-spacing: .08em;
+    }
+
+    .top-actions { display: flex; gap: 9px; }
+
+    .hall-link, .music-button {
+      display: inline-block;
+      padding: 9px 14px;
+      border: 1px solid #ffffff36;
+      border-radius: 999px;
+      color: var(--ink);
+      background: #ffffff0d;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .hall-link:hover, .music-button:hover { background: #ffffff20; }
+
+    main {
+      width: min(1080px, 100%);
+      margin: 0 auto;
+      padding: 26px clamp(14px, 4vw, 40px) 50px;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .progress {
+      height: 7px;
+      margin-bottom: 18px;
+      overflow: hidden;
+      border-radius: 10px;
+      background: #ffffff1a;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--pink), var(--blue));
+      transition: width .35s ease;
+    }
+
+    .scene {
+      display: flex;
+      min-height: 245px;
+      align-items: end;
+      padding: clamp(22px, 5vw, 42px);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background:
+        radial-gradient(ellipse at 75% 20%, #a870d74d, transparent 35%),
+        linear-gradient(135deg, #262247, #11101d 72%);
+      box-shadow: 0 20px 60px #0005;
+    }
+
+    .scene-copy { max-width: 760px; }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: #ffc0e3;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, p { margin-top: 0; }
+
+    .scene h1 {
+      margin-bottom: 10px;
+      font-size: clamp(30px, 6vw, 52px);
+      line-height: 1.05;
+    }
+
+    .scene p { margin-bottom: 0; color: #eee8f8; line-height: 1.65; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 230px;
+      gap: 18px;
+      margin-top: 18px;
+      align-items: start;
+    }
+
+    .panel, .side-panel {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: 0 12px 35px #0003;
+    }
+
+    .panel { min-height: 300px; padding: clamp(18px, 3vw, 28px); }
+    .panel h2 { margin-bottom: 12px; font-size: clamp(21px, 3vw, 28px); }
+    .panel p { color: var(--muted); line-height: 1.65; }
+
+    .side-panel { padding: 18px; }
+    .side-panel h2 { font-size: 17px; }
+
+    .quest-list {
+      display: grid;
+      gap: 9px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .quest-list li {
+      padding: 9px 10px;
+      border: 1px solid #ffffff17;
+      border-radius: 10px;
+      color: var(--muted);
+      background: #ffffff06;
+      font-size: 13px;
+    }
+
+    .quest-list li.done {
+      border-color: #9ce6bd55;
+      color: var(--green);
+      background: #9ce6bd0d;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .choice {
+      min-height: 72px;
+      padding: 14px 16px;
+      border: 1px solid #ffffff2b;
+      border-radius: 14px;
+      color: var(--ink);
+      background: linear-gradient(135deg, #292440, #191629);
+      text-align: left;
+      cursor: pointer;
+      transition: transform .16s, border-color .16s;
+    }
+
+    .choice:hover {
+      transform: translateY(-2px);
+      border-color: #ff9bceaa;
+    }
+
+    .choice strong { display: block; margin-bottom: 4px; }
+    .choice span { color: var(--muted); font-size: 13px; }
+
+    .puzzle {
+      margin: 18px 0;
+      padding: 18px;
+      border: 1px solid #ffffff1c;
+      border-radius: 14px;
+      background: #ffffff08;
+    }
+
+    .puzzle-code {
+      display: block;
+      margin: 16px 0;
+      color: #ffe0f1;
+      font-size: clamp(27px, 7vw, 42px);
+      font-weight: 900;
+      letter-spacing: .2em;
+      text-align: center;
+    }
+
+    .answer-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .answer-form input {
+      flex: 1 1 180px;
+      min-width: 0;
+      padding: 12px 14px;
+      border: 1px solid #ffffff35;
+      border-radius: 11px;
+      outline: none;
+      color: white;
+      background: #0d0b18;
+    }
+
+    .answer-form input:focus { border-color: var(--pink); }
+
+    .primary-button {
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 999px;
+      color: white;
+      background: linear-gradient(90deg, #e65ca8, #8069e8);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary-button:hover { filter: brightness(1.12); }
+
+    .hint-button {
+      margin-top: 12px;
+      padding: 8px 0;
+      border: 0;
+      color: #cbbaff;
+      background: transparent;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .hint, .game-status {
+      min-height: 24px;
+      color: var(--pink) !important;
+      font-weight: 700;
+    }
+
+    .signal-game {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .signal-tile {
+      width: 76px;
+      height: 76px;
+      border: 2px solid #ffffff44;
+      border-radius: 18px;
+      color: white;
+      font-size: 27px;
+      cursor: pointer;
+      transition: transform .12s, filter .12s, box-shadow .12s;
+    }
+
+    .signal-tile:hover { transform: scale(1.04); }
+    .signal-tile.active { filter: brightness(1.8); box-shadow: 0 0 28px currentColor; }
+    .signal-tile:disabled { cursor: default; opacity: .7; }
+    .signal-pink { background: #bc4e95; }
+    .signal-blue { background: #426fa9; }
+    .signal-gold { background: #a87932; }
+
+    .ending {
+      padding: 22px;
+      border: 1px solid #ffb0da66;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #ff8ecb1a, #8bcaff12);
+    }
+
+    .ending h2 { color: #ffd0e8; }
+
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+      .side-panel { order: -1; }
+    }
+
+    @media (max-width: 480px) {
+      .topbar { align-items: flex-start; }
+      .brand { padding-top: 8px; font-size: 13px; }
+      .hall-link, .music-button { padding: 8px 10px; font-size: 12px; }
+      .signal-tile { width: 64px; height: 64px; }
+      .scene { min-height: 220px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">🎮 EKIN.EXE</div>
+    <nav class="top-actions" aria-label="Navigation">
+      <button class="music-button" id="musicButton" type="button">♫ Activer la musique</button>
+      <a class="hall-link" href="accueil.html">← Retour au hall</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="status-row">
+      <span id="chapterLabel">Nouvelle partie</span>
+      <span id="evidenceLabel">Indices : 0</span>
+    </div>
+
+    <div class="progress" aria-label="Progression de l’histoire">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <section class="scene">
+      <div class="scene-copy">
+        <p class="eyebrow" id="sceneEyebrow">Aventure interactive</p>
+        <h1 id="sceneTitle">Chargement…</h1>
+        <p id="sceneDescription"></p>
+      </div>
+    </section>
+
+    <div class="layout">
+      <section class="panel" id="story" aria-live="polite"></section>
+
+      <aside class="side-panel">
+        <h2>📋 Journal des quêtes</h2>
+        <ul class="quest-list" id="questList"></ul>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const story = document.getElementById("story");
+    const musicButton = document.getElementById("musicButton");
+
+    const state = {
+      step: "intro",
+      clues: new Set(),
+      completed: new Set(),
+      explored: new Set(),
+      memoryPattern: ["pink", "blue", "gold", "pink"],
+      memoryIndex: 0,
+      memoryReady: false,
+      memoryLocked: false,
+      hintShown: false,
+      message: ""
+    };
+
+    const chapters = {
+      intro: ["Nouvelle partie", 0],
+      cipher: ["Quête 1 — Le message chiffré", 18],
+      riddle: ["Quête 2 — La boîte mystérieuse", 36],
+      number: ["Quête 3 — Le code du coffre", 54],
+      memory: ["Quête 4 — Le signal lumineux", 72],
+      explore: ["Quête bonus — Exploration", 86],
+      boss: ["Final — Ekin Prime", 96],
+      ending: ["Fin de l’aventure", 100]
+    };
+
+    const questNames = {
+      cipher: "Déchiffrer le message",
+      riddle: "Résoudre l’énigme",
+      number: "Trouver le nombre manquant",
+      memory: "Reproduire le signal",
+      explore: "Explorer les lieux secrets",
+      boss: "Découvrir la vérité"
+    };
+
+    function setScene(eyebrow, title, description) {
+      document.getElementById("sceneEyebrow").textContent = eyebrow;
+      document.getElementById("sceneTitle").textContent = title;
+      document.getElementById("sceneDescription").textContent = description;
+    }
+
+    function updateStatus() {
+      const [label, progress] = chapters[state.step];
+      document.getElementById("chapterLabel").textContent = label;
+      document.getElementById("evidenceLabel").textContent = `Indices : ${state.clues.size}`;
+      document.getElementById("progressBar").style.width = `${progress}%`;
+
+      document.getElementById("questList").innerHTML =
+        Object.entries(questNames).map(([id, name]) => `
+          <li class="${state.completed.has(id) ? "done" : ""}">
+            ${state.completed.has(id) ? "✓" : "○"} ${name}
+          </li>
+        `).join("");
+    }
+
+    function render() {
+      updateStatus();
+
+      if (state.step === "intro") renderIntro();
+      else if (state.step === "cipher") renderCipher();
+      else if (state.step === "riddle") renderRiddle();
+      else if (state.step === "number") renderNumberPuzzle();
+      else if (state.step === "memory") renderMemory();
+      else if (state.step === "explore") renderExplore();
+      else if (state.step === "boss") renderBoss();
+    }
+
+    function renderIntro() {
+      setScene(
+        "Aventure interactive",
+        "Le bug d’anniversaire",
+        "Une panne mystérieuse a verrouillé la fête d’Ekin. Résous les énigmes, récupère les indices et découvre qui se cache derrière le bug."
+      );
+
+      story.innerHTML = `
+        <h2>Mission : sauver la fête 🎂</h2>
+        <p>Cette aventure contient un message chiffré, une énigme, un casse-tête numérique et un jeu de mémoire. Les réponses sont à trouver : lis bien chaque indice !</p>
+        <button class="primary-button" data-action="start">▶ Commencer l’aventure</button>
+      `;
+    }
+
+    function renderCipher() {
+      setScene(
+        "Quête 1 — Décryptage",
+        "Le message du terminal",
+        "Le terminal a décalé chaque lettre de trois places vers l’avant dans l’alphabet. Pour lire le message, recule chaque lettre de trois places."
+      );
+
+      story.innerHTML = `
+        <h2>Déchiffre le mot</h2>
+        <p>Exemple : D devient A quand on recule de trois lettres. Quel mot se cache derrière ce code ?</p>
+        <strong class="puzzle-code">HNLQ</strong>
+        <form class="answer-form" data-form="cipher">
+          <input name="answer" aria-label="Ta réponse" placeholder="Écris le mot déchiffré" autocomplete="off" required>
+          <button class="primary-button" type="submit">Vérifier</button>
+        </form>
+        <p class="game-status">${state.message}</p>
+        <button class="hint-button" data-action="hint-cipher">Afficher un indice</button>
+      `;
+    }
+
+    function renderRiddle() {
+      setScene(
+        "Quête 2 — Énigme",
+        "La boîte sans serrure",
+        "Une boîte étrange bloque la porte. Une inscription est gravée sur son couvercle."
+      );
+
+      story.innerHTML = `
+        <h2>Résous l’énigme</h2>
+        <div class="puzzle">
+          <p>« Plus on m’enlève, plus je deviens grand. Qui suis-je ? »</p>
+          <p>Réponds avec un seul mot.</p>
+        </div>
+        <form class="answer-form" data-form="riddle">
+          <input name="answer" aria-label="Ta réponse" placeholder="Ta réponse" autocomplete="off" required>
+          <button class="primary-button" type="submit">Vérifier</button>
+        </form>
+        <p class="game-status">${state.message}</p>
+        <button class="hint-button" data-action="hint-riddle">Afficher un indice</button>
+      `;
+    }
+
+    function renderNumberPuzzle() {
+      setScene(
+        "Quête 3 — Casse-tête",
+        "La combinaison du coffre",
+        "Le coffre demande le prochain nombre de la suite. Observe les écarts entre les nombres."
+      );
+
+      story.innerHTML = `
+        <h2>Trouve le nombre manquant</h2>
+        <div class="puzzle">
+          <strong class="puzzle-code">2 · 5 · 10 · 17 · 26 · ?</strong>
+          <p>Quel nombre vient ensuite ?</p>
+        </div>
+        <form class="answer-form" data-form="number">
+          <input name="answer" inputmode="numeric" aria-label="Le nombre suivant" placeholder="Écris le nombre" required>
+          <button class="primary-button" type="submit">Ouvrir le coffre</button>
+        </form>
+        <p class="game-status">${state.message}</p>
+        <button class="hint-button" data-action="hint-number">Afficher un indice</button>
+      `;
+    }
+
+    function renderMemory() {
+      setScene(
+        "Quête 4 — Signal secret",
+        "Le terminal lumineux",
+        "Observe la séquence de couleurs, puis reproduis-la dans le même ordre."
+      );
+
+      story.innerHTML = `
+        <h2>Jeu de mémoire</h2>
+        <p>La séquence contient quatre couleurs. Clique sur « Montrer la séquence » pour commencer.</p>
+        <p class="game-status" id="memoryStatus">${state.message || "Prêt quand tu l’es !"}</p>
+        <div class="signal-game">
+          <button class="signal-tile signal-pink" data-color="pink" aria-label="Rose" disabled>●</button>
+          <button class="signal-tile signal-blue" data-color="blue" aria-label="Bleu" disabled>●</button>
+          <button class="signal-tile signal-gold" data-color="gold" aria-label="Or" disabled>●</button>
+        </div>
+        <button class="primary-button" data-action="show-memory" ${state.memoryLocked ? "disabled" : ""}>▶ Montrer la séquence</button>
+      `;
+    }
+
+    function renderExplore() {
+      setScene(
+        "Quête bonus",
+        "Explore les lieux secrets",
+        "Avant le combat final, fouille les lieux pour récolter des indices bonus. Tu peux aussi partir directement."
+      );
+
+      const places = {
+        control: ["🖥️ Salle de contrôle", "Un journal système révèle que le bug protège quelque chose."],
+        roof: ["🌃 Toit de l’immeuble", "Une lumière rose clignote près d’un paquet mystérieux."],
+        garden: ["🌸 Jardin secret", "Une carte indique : « La fête n’était qu’un prétexte pour réunir le squad. »"]
+      };
+
+      story.innerHTML = `
+        <h2>Enquête facultative</h2>
+        <p>Tu as exploré ${state.explored.size} lieu(x). Chaque lieu visité ajoute un indice.</p>
+        <div class="choices">
+          ${Object.entries(places).map(([id, [title, text]]) => state.explored.has(id) ? "" : `
+            <button class="choice" data-place="${id}" data-text="${text}">
+              <strong>${title}</strong><span>Explorer et chercher un indice.</span>
+            </button>
+          `).join("")}
+          <button class="choice" data-action="boss">
+            <strong>⚔️ Aller au combat final</strong><span>Tu peux partir quand tu le souhaites.</span>
+          </button>
+        </div>
+        <p class="game-status">${state.message}</p>
+      `;
+    }
+
+    function renderBoss() {
+      setScene(
+        "Final — Ekin Prime",
+        "Le dernier choix",
+        "Le bug prend la forme d’Ekin Prime. Utilise ce que tu as découvert pour décider comment terminer l’aventure."
+      );
+
+      story.innerHTML = `
+        <h2>Comment réagis-tu ?</h2>
+        <p>Indices trouvés : ${state.clues.size}. Les choix changent la fin de l’histoire.</p>
+        <div class="choices">
+          <button class="choice" data-ending="team">
+            <strong>🤝 Faire confiance au squad</strong><span>Demander de l’aide à Emma, Céline et Kiara.</span>
+          </button>
+          <button class="choice" data-ending="decode">
+            <strong>🔍 Désactiver le bug</strong><span>Utiliser les indices pour comprendre son origine.</span>
+          </button>
+          <button class="choice" data-ending="rush">
+            <strong>⚡ Agir immédiatement</strong><span>Foncer sans attendre et prendre un risque.</span>
+          </button>
+        </div>
+      `;
+    }
+
+    function normalize(value) {
+      return value
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
+    }
+
+    function completeQuest(id, clue, nextStep) {
+      state.completed.add(id);
+      state.clues.add(clue);
+      state.message = "";
+      state.hintShown = false;
+      state.step = nextStep;
+      render();
+    }
+
+    story.addEventListener("submit", (event) => {
+      const form = event.target.closest("form[data-form]");
+      if (!form) return;
+      event.preventDefault();
+
+      const answer = normalize(new FormData(form).get("answer") || "");
+
+      if (form.dataset.form === "cipher") {
+        if (answer === "ekin") completeQuest("cipher", "message déchiffré", "riddle");
+        else {
+          state.message = state.hintShown
+            ? "Pas encore. Recule chaque lettre de trois places."
+            : "Ce n’est pas le bon mot. Tu peux demander un indice.";
+          renderCipher();
+        }
+      } else if (form.dataset.form === "riddle") {
+        if (["trou", "un trou"].includes(answer)) {
+          completeQuest("riddle", "énigme résolue", "number");
+        } else {
+          state.message = state.hintShown
+            ? "Pense à une ouverture dans le sol."
+            : "Essaie encore ou demande un indice.";
+          renderRiddle();
+        }
+      } else if (form.dataset.form === "number") {
+        if (answer === "37") completeQuest("number", "coffre ouvert", "memory");
+        else {
+          state.message = state.hintShown
+            ? "Les écarts sont 3, 5, 7, 9, puis 11."
+            : "Le coffre reste fermé. Observe les écarts entre les nombres.";
+          renderNumberPuzzle();
+        }
+      }
+    });
+
+    const wait = (ms) => new Promise(resolve => window.setTimeout(resolve, ms));
+
+    async function showMemorySequence() {
+      if (state.memoryLocked) return;
+
+      state.memoryLocked = true;
+      state.memoryReady = false;
+      state.memoryIndex = 0;
+      state.message = "Observe bien les couleurs…";
+      renderMemory();
+
+      await wait(500);
+
+      for (const color of state.memoryPattern) {
+        if (state.step !== "memory") return;
+        const tile = story.querySelector(`[data-color="${color}"]`);
+        if (tile) tile.classList.add("active");
+        await wait(550);
+        if (tile) tile.classList.remove("active");
+        await wait(220);
+      }
+
+      state.memoryLocked = false;
+      state.memoryReady = true;
+      const status = document.getElementById("memoryStatus");
+      if (status) status.textContent = "À toi ! Reproduis la séquence.";
+      story.querySelectorAll(".signal-tile").forEach(tile => tile.disabled = false);
+    }
+
+    function finish(title, text, emoji) {
+      state.step = "ending";
+      state.completed.add("boss");
+      setScene("Fin de mission", title, "L’aventure est terminée. Tu peux rejouer pour découvrir une autre fin.");
+
+      story.innerHTML = `
+        <div class="ending">
+          <h2>${emoji} ${title}</h2>
+          <p>${text}</p>
+          <p><strong>Indices trouvés :</strong> ${state.clues.size}</p>
+          <button class="primary-button" data-action="restart">↻ Rejouer</button>
+        </div>
+      `;
+      updateStatus();
+    }
+
+    function endGame(choice) {
+      if (choice === "decode" && state.explored.size === 3) {
+        finish(
+          "Le secret découvert !",
+          "Grâce à toutes tes énigmes et à ton exploration, tu comprends que le bug cachait un cadeau préparé pour Ekin. Le squad révèle la surprise et la fête peut commencer !",
+          "🎁"
+        );
+      } else if (choice === "decode") {
+        finish(
+          "Une partie du mystère résolue",
+          "Tu désactives le bug, mais quelques indices manquent encore. Rejoue et explore les lieux secrets pour découvrir toute la vérité.",
+          "🔎"
+        );
+      } else if (choice === "team") {
+        finish(
+          "Le squad sauve la fête",
+          "Emma trouve la commande d’arrêt, Céline protège tout le monde et Kiara récupère le paquet. Ensemble, vous sauvez la fête d’Ekin !",
+          "🤝"
+        );
+      } else {
+        finish(
+          "Victoire mouvementée",
+          "Tu agis vite et neutralises Ekin Prime. Le système redémarre, le squad est sain et sauf, et la fête peut continuer.",
+          "⚡"
+        );
+      }
+    }
+
+    story.addEventListener("click", async (event) => {
+      const button = event.target.closest("button");
+      if (!button || button.disabled) return;
+
+      if (button.dataset.action === "start") {
+        state.step = "cipher";
+        state.message = "";
+        render();
+      } else if (button.dataset.action === "hint-cipher") {
+        state.hintShown = true;
+        state.message = "Indice : H devient E quand on recule de trois lettres.";
+        renderCipher();
+      } else if (button.dataset.action === "hint-riddle") {
+        state.hintShown = true;
+        state.message = "Indice : on peut creuser cette chose dans le sol.";
+        renderRiddle();
+      } else if (button.dataset.action === "hint-number") {
+        state.hintShown = true;
+        state.message = "Indice : les écarts augmentent de deux à chaque fois.";
+        renderNumberPuzzle();
+      } else if (button.dataset.action === "show-memory") {
+        await showMemorySequence();
+      } else if (button.dataset.color && state.memoryReady && !state.memoryLocked) {
+        const expected = state.memoryPattern[state.memoryIndex];
+
+        if (button.dataset.color !== expected) {
+          state.memoryReady = false;
+          state.memoryIndex = 0;
+          state.message = "Mauvaise séquence. Relance la démonstration et réessaie.";
+          renderMemory();
+          return;
+        }
+
+        button.classList.add("active");
+        window.setTimeout(() => button.classList.remove("active"), 180);
+        state.memoryIndex++;
+
+        if (state.memoryIndex === state.memoryPattern.length) {
+          state.memoryReady = false;
+          completeQuest("memory", "signal décodé", "explore");
+        }
+      } else if (button.dataset.place) {
+        state.explored.add(button.dataset.place);
+        state.clues.add("indice du lieu");
+        state.message = button.dataset.text;
+        if (state.explored.size === 3) state.completed.add("explore");
+        renderExplore();
+      } else if (button.dataset.action === "boss") {
+        if (state.explored.size > 0) state.completed.add("explore");
+        state.step = "boss";
+        render();
+      } else if (button.dataset.ending) {
+        endGame(button.dataset.ending);
+      } else if (button.dataset.action === "restart") {
+        state.step = "intro";
+        state.clues.clear();
+        state.completed.clear();
+        state.explored.clear();
+        state.memoryIndex = 0;
+        state.memoryReady = false;
+        state.memoryLocked = false;
+        state.hintShown = false;
+        state.message = "";
+        render();
+      }
+    });
+
+    // Musique originale synthétisée dans le navigateur : aucun MP3 externe.
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    let audioContext = null;
+    let musicTimer = null;
+    let musicStep = 0;
+
+    const melody = [
+      523.25, 659.25, 783.99, 659.25,
+      587.33, 698.46, 880.00, 698.46,
+      493.88, 587.33, 783.99, 659.25,
+      440.00, 523.25, 659.25, 587.33
+    ];
+
+    function playNote(frequency) {
+      if (!audioContext) return;
+
+      const now = audioContext.currentTime;
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(frequency, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.035, now + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.31);
+
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start(now);
+      oscillator.stop(now + 0.33);
+    }
+
+    musicButton.addEventListener("click", async () => {
+      if (!AudioContextClass) {
+        musicButton.textContent = "Musique indisponible";
+        return;
+      }
+
+      if (musicTimer) {
+        window.clearInterval(musicTimer);
+        musicTimer = null;
+        musicButton.textContent = "♫ Activer la musique";
+        return;
+      }
+
+      audioContext ??= new AudioContextClass();
+      if (audioContext.state === "suspended") await audioContext.resume();
+
+      musicStep = 0;
+      playNote(melody[musicStep++]);
+      musicTimer = window.setInterval(() => {
+        playNote(melody[musicStep % melody.length]);
+        musicStep++;
+      }, 360);
+
+      musicButton.textContent = "♫ Couper la musique";
+    });
+
+    render();
+  </script>
+</body>
+</html>

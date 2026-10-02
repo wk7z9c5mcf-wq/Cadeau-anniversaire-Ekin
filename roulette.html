@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Roulette du chaos</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px 16px;
+      display: grid;
+      place-items: center;
+      color: #fff4fa;
+      font-family: "Segoe UI", Arial, sans-serif;
+      text-align: center;
+      background:
+        radial-gradient(ellipse at 50% 15%, #542949, transparent 55%),
+        linear-gradient(145deg, #100914, #08050d 70%);
+    }
+
+    .page { width: min(760px, 100%); }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: #ffb5d8;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      color: #ffe1f0;
+      font-size: clamp(34px, 7vw, 54px);
+      text-shadow: 0 0 24px #ff62ae99;
+    }
+
+    .intro {
+      margin: 10px auto 0;
+      color: #e8c8dc;
+      line-height: 1.5;
+    }
+
+    .wheel-area {
+      position: relative;
+      width: min(78vw, 500px, 58vh);
+      aspect-ratio: 1;
+      margin: 26px auto 18px;
+      filter: drop-shadow(0 15px 25px #0008);
+    }
+
+    .wheel-frame {
+      position: absolute;
+      inset: 0;
+      padding: 10px;
+      border: 3px solid #ffe38a;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffe38a, #ff8ecb, #9171ec, #ffe38a);
+      box-shadow: 0 0 30px #ff62ae66, inset 0 0 12px #fff8;
+    }
+
+    #wheel {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 2px solid #fff4fa;
+      border-radius: 50%;
+      background: #24132c;
+      transform: rotate(0deg);
+      transform-origin: center;
+      transition: transform 5s cubic-bezier(.12, .78, .12, 1);
+    }
+
+    .pointer {
+      position: absolute;
+      z-index: 2;
+      top: -12px;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-right: 19px solid transparent;
+      border-left: 19px solid transparent;
+      border-top: 38px solid #fff4fa;
+      filter: drop-shadow(0 3px 5px #000);
+      transform: translateX(-50%);
+    }
+
+    .spin-button {
+      padding: 14px 27px;
+      border: 1px solid #ffe1f0;
+      border-radius: 30px;
+      color: white;
+      background: linear-gradient(135deg, #f262a5, #9a4cc1);
+      box-shadow: 0 0 24px #ff54a866;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .15s, filter .15s;
+    }
+
+    .spin-button:hover:not(:disabled) {
+      filter: brightness(1.15);
+      transform: translateY(-2px);
+    }
+
+    .spin-button:disabled {
+      opacity: .65;
+      cursor: wait;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px auto;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid #ffffff20;
+      border-radius: 999px;
+      background: #ffffff0b;
+      color: #f7eafa;
+      font-size: 13px;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      box-shadow: 0 0 9px currentColor;
+    }
+
+    .dot.compliment { color: #ff83bd; background: #ff83bd; }
+    .dot.action { color: #ffd66e; background: #ffd66e; }
+    .dot.truth { color: #a992ff; background: #a992ff; }
+
+    .result {
+      min-height: 116px;
+      margin: 18px auto;
+      padding: 17px 20px;
+      border: 1px solid #ffb1d455;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #29152be8, #171126e8);
+      box-shadow: 0 10px 30px #0003;
+    }
+
+    .result-label {
+      margin: 0 0 7px;
+      color: #ffb5d8;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    .result h2 {
+      margin: 0 0 6px;
+      color: #ffe38a;
+      font-size: clamp(20px, 4vw, 27px);
+      text-shadow: 0 0 12px #ff62ae66;
+    }
+
+    .result p {
+      margin: 0;
+      color: #f1e5f0;
+      line-height: 1.5;
+    }
+
+    .hall-link {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 10px 17px;
+      border: 1px solid #ffb1d4aa;
+      border-radius: 24px;
+      color: #ffe1f0;
+      background: #261326dd;
+      text-decoration: none;
+    }
+
+    .hall-link:hover { background: #57244a; }
+
+    @media (max-height: 700px) {
+      body { padding-top: 14px; padding-bottom: 14px; }
+      .wheel-area {
+        width: min(52vh, 390px);
+        margin: 17px auto 12px;
+      }
+      .legend { margin: 12px auto; }
+    }
+
+    @media (max-width: 480px) {
+      .wheel-area { width: min(88vw, 58vh); }
+      .wheel-frame { padding: 7px; }
+      .legend { gap: 6px; }
+      .legend-item { padding: 7px 9px; font-size: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #wheel { transition-duration: .5s; }
+      .spin-button { transition: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <p class="eyebrow">Compliments • Actions • Vérités</p>
+    <h1>Roulette du chaos 🎡</h1>
+    <p class="intro">Lance la roue… et relève le résultat avec le sourire !</p>
+
+    <div class="wheel-area">
+      <div class="pointer" aria-hidden="true"></div>
+      <div class="wheel-frame">
+        <canvas id="wheel" aria-label="Roue de compliments, actions et vérités"></canvas>
+      </div>
+    </div>
+
+    <button class="spin-button" id="spinButton" type="button">
+      Lancer le destin ✨
+    </button>
+
+    <div class="legend" aria-label="Légende des couleurs">
+      <span class="legend-item"><span class="dot compliment"></span>Compliment</span>
+      <span class="legend-item"><span class="dot action"></span>Action</span>
+      <span class="legend-item"><span class="dot truth"></span>Vérité</span>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <p class="result-label" id="resultCategory">À toi de jouer</p>
+      <h2 id="resultTitle">La roue attend son premier lancement…</h2>
+      <p id="resultText">Chaque case contient une surprise. Bonne chance !</p>
+    </section>
+
+    <a class="hall-link" href="accueil.html">← Retour au hall</a>
+  </main>
+
+  <script src="musique.js"></script>
+
+  <script>
+    // Les catégories alternent pour répartir les couleurs sur toute la roue.
+    const entries = [
+      {
+        type: "Compliment",
+        label: "REINE",
+        color: "#d94f8e",
+        title: "Reine du jour 👑",
+        text: "Ekin passe et tu t'écartes, Ekin domine et tu t'inclines."
+      },
+      {
+        type: "Action",
+        label: "MIAULE",
+        color: "#d49a25",
+        title: "Mission chat 🐈",
+        text: "Fais le plus beau miaulement de chat que tu peux."
+      },
+      {
+        type: "Vérité",
+        label: "FIERTÉ",
+        color: "#8068d1",
+        title: "Une petite fierté ✨",
+        text: "Quelle chose que tu as faite récemment te rend fier ou fière ?"
+      },
+      {
+        type: "Compliment",
+        label: "SOURIRE",
+        color: "#c23f83",
+        title: "Sourire contagieux 😄",
+        text: "Tête à prout prout."
+      },
+      {
+        type: "Action",
+        label: "DANSE",
+        color: "#b87b19",
+        title: "Mini danse 💃",
+        text: "Danse pendant dix secondes, même sans musique."
+      },
+      {
+        type: "Vérité",
+        label: "RIRE",
+        color: "#6953bb",
+        title: "Souvenir drôle 😂",
+        text: "Quel souvenir te fait rire à chaque fois que tu y repenses ?"
+      },
+      {
+        type: "Compliment",
+        label: "GÉNIE",
+        color: "#e264a5",
+        title: "Génie en liberté 🧠",
+        text: "Ton cerveau fait la taille de l'univers."
+      },
+      {
+        type: "Action",
+        label: "POSE",
+        color: "#e0aa36",
+        title: "Pose héroïque 🦸",
+        text: "Prends une pose de personnage principal pendant cinq secondes."
+      },
+      {
+        type: "Vérité",
+        label: "RÊVE",
+        color: "#927de0",
+        title: "Un rêve à réaliser 🌈",
+        text: "Quelle activité aimerais-tu absolument essayer un jour ?"
+      },
+      {
+        type: "Compliment",
+        label: "ÉTOILE",
+        color: "#bd397c",
+        title: "Énergie de star 🌟",
+        text: "Une baddy qui brille de mille feux."
+      },
+      {
+        type: "Action",
+        label: "CHANTE",
+        color: "#a96b13",
+        title: "Refrain surprise 🎤",
+        text: "Chante quelques secondes d’une chanson que tu aimes."
+      },
+      {
+        type: "Vérité",
+        label: "JOIE",
+        color: "#5945a8",
+        title: "Petit bonheur 💖",
+        text: "Quelle petite chose peut toujours améliorer ta journée ?"
+      }
+    ];
+
+    const canvas = document.getElementById("wheel");
+    const ctx = canvas.getContext("2d");
+    const spinButton = document.getElementById("spinButton");
+    const wheelArea = document.querySelector(".wheel-area");
+    const resultCategory = document.getElementById("resultCategory");
+    const resultTitle = document.getElementById("resultTitle");
+    const resultText = document.getElementById("resultText");
+
+    let currentRotation = 0;
+    let spinning = false;
+
+    function drawWheel() {
+      const size = canvas.clientWidth;
+      if (!size) return;
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(size * dpr);
+      canvas.height = Math.round(size * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const center = size / 2;
+      const radius = center - 3;
+      const slice = (Math.PI * 2) / entries.length;
+
+      ctx.clearRect(0, 0, size, size);
+
+      entries.forEach((entry, index) => {
+        const start = -Math.PI / 2 + index * slice;
+        const end = start + slice;
+        const middle = start + slice / 2;
+
+        ctx.beginPath();
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, radius, start, end);
+        ctx.closePath();
+        ctx.fillStyle = entry.color;
+        ctx.fill();
+
+        ctx.strokeStyle = "#ffe9f5";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Le libellé est placé au milieu de sa case, loin du centre et du bord.
+        ctx.save();
+        ctx.translate(center, center);
+        ctx.rotate(middle);
+        ctx.translate(radius * 0.72, 0);
+
+        // Retourne le texte sur la moitié gauche pour qu’il reste lisible.
+        if (Math.cos(middle) < 0) {
+          ctx.rotate(Math.PI);
+        }
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = `800 ${Math.max(10, size * 0.031)}px "Segoe UI", Arial`;
+        ctx.fillStyle = "#fffafc";
+        ctx.shadowColor = "#24102b";
+        ctx.shadowBlur = 4;
+        ctx.fillText(entry.label, 0, 0, radius * 0.38);
+        ctx.restore();
+      });
+
+      // Centre décoratif de la roue.
+      ctx.beginPath();
+      ctx.arc(center, center, radius * 0.12, 0, Math.PI * 2);
+      ctx.fillStyle = "#fff0a8";
+      ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(center, center, radius * 0.075, 0, Math.PI * 2);
+      ctx.fillStyle = "#a93b83";
+      ctx.fill();
+
+      ctx.fillStyle = "#fff";
+      ctx.font = `${radius * 0.08}px Georgia`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("♥", center, center + 1);
+    }
+
+    function modulo(value, divisor) {
+      return ((value % divisor) + divisor) % divisor;
+    }
+
+    spinButton.addEventListener("click", () => {
+      if (spinning) return;
+
+      spinning = true;
+      spinButton.disabled = true;
+      spinButton.textContent = "La roue tourne… 🎡";
+      resultCategory.textContent = "Le destin choisit";
+      resultTitle.textContent = "Bonne chance !";
+      resultText.textContent = "La roue prépare ta surprise…";
+
+      const chosenIndex = Math.floor(Math.random() * entries.length);
+      const sliceDegrees = 360 / entries.length;
+      const targetRotation = -((chosenIndex + 0.5) * sliceDegrees);
+      const extraRotation = modulo(targetRotation - currentRotation, 360);
+      const finalRotation = currentRotation + 360 * 6 + extraRotation;
+
+      canvas.style.transform = `rotate(${finalRotation}deg)`;
+      currentRotation = finalRotation;
+
+      window.setTimeout(() => {
+        const chosen = entries[chosenIndex];
+
+        resultCategory.textContent = chosen.type;
+        resultTitle.textContent = chosen.title;
+        resultText.textContent = chosen.text;
+
+        spinButton.disabled = false;
+        spinButton.textContent = "Relancer la roue ✨";
+        spinning = false;
+      }, 5100);
+    });
+
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(drawWheel).observe(wheelArea);
+    } else {
+      window.addEventListener("resize", drawWheel);
+    }
+
+    drawWheel();
+  </script>
+</body>
+</html>

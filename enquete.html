@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Téléphone perdu — Enquête</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --ink: #30251f;
+      --cream: #fff8e9;
+      --pink: #ef6e91;
+      --green: #75d34d;
+      --dark-green: #42a94f;
+      --pixel-border: #34251f;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 22px 14px;
+      color: var(--ink);
+      font-family: "Courier New", monospace;
+      background:
+        linear-gradient(45deg, #eee 25%, transparent 25%),
+        linear-gradient(-45deg, #eee 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #eee 75%),
+        linear-gradient(-45deg, transparent 75%, #eee 75%),
+        #fff;
+      background-size: 32px 32px;
+      background-position: 0 0, 0 16px, 16px -16px, -16px 0;
+    }
+
+    button { font: inherit; }
+
+    .game {
+      width: min(920px, 100%);
+      margin: auto;
+      overflow: hidden;
+      border: 5px solid var(--pixel-border);
+      background: var(--cream);
+      box-shadow: 8px 8px 0 #34251f44;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 4px solid var(--pixel-border);
+      background: #fff;
+      font-weight: bold;
+    }
+
+    .phone-title { color: #e2557d; }
+    .battery { white-space: nowrap; }
+
+    .screen {
+      padding: clamp(12px, 3vw, 24px);
+      background: #f5f0e5;
+    }
+
+    h1, h2, p { margin-top: 0; }
+    h1 { margin-bottom: 8px; font-size: clamp(22px, 5vw, 34px); }
+    h2 { font-size: 19px; }
+    p { line-height: 1.55; }
+
+    .pixel-scene {
+      position: relative;
+      height: clamp(190px, 38vw, 300px);
+      margin-bottom: 18px;
+      overflow: hidden;
+      border: 4px solid var(--pixel-border);
+      background:
+        linear-gradient(#83d65a 0 53%, #59bd50 53% 100%);
+      image-rendering: pixelated;
+    }
+
+    .pixel-scene::before {
+      position: absolute;
+      right: -5%;
+      bottom: 20%;
+      left: -5%;
+      height: 28%;
+      background: #45ad4f;
+      content: "";
+      clip-path: polygon(0 60%, 8% 25%, 18% 50%, 31% 5%, 45% 47%, 58% 10%, 72% 48%, 87% 15%, 100% 55%, 100% 100%, 0 100%);
+    }
+
+    .pixel-sun {
+      position: absolute;
+      top: 18px;
+      right: 24px;
+      width: 35px;
+      height: 35px;
+      border: 4px solid #493b38;
+      background: #ffe68a;
+      box-shadow: 6px 6px 0 #f0b95f;
+    }
+
+    .bench {
+      position: absolute;
+      bottom: 16%;
+      left: 50%;
+      width: min(300px, 62%);
+      height: 75px;
+      transform: translateX(-50%);
+    }
+
+    .bench-seat, .bench-back {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 22px;
+      border: 4px solid #513222;
+      background: repeating-linear-gradient(90deg, #a96833 0 35px, #84502c 35px 40px);
+    }
+
+    .bench-back { top: 0; }
+    .bench-seat { top: 30px; }
+
+    .bench-leg {
+      position: absolute;
+      top: 48px;
+      width: 12px;
+      height: 28px;
+      background: #513222;
+    }
+
+    .bench-leg.left { left: 20px; }
+    .bench-leg.right { right: 20px; }
+
+    .gift {
+      position: absolute;
+      z-index: 1;
+      right: 16%;
+      bottom: 20%;
+      width: 52px;
+      height: 45px;
+      border: 4px solid #513222;
+      background: #ec6685;
+      box-shadow: inset 20px 0 #ffd06c;
+    }
+
+    .gift::before {
+      position: absolute;
+      top: -13px;
+      left: -8px;
+      width: 60px;
+      height: 12px;
+      border: 4px solid #513222;
+      background: #ffd06c;
+      content: "";
+    }
+
+    .gift::after {
+      position: absolute;
+      top: -25px;
+      left: 15px;
+      width: 16px;
+      height: 13px;
+      border: 4px solid #513222;
+      border-radius: 50% 50% 0 50%;
+      background: #ec6685;
+      content: "";
+    }
+
+    .pixel-character {
+      position: absolute;
+      z-index: 2;
+      bottom: 16%;
+      left: 50%;
+      width: 110px;
+      height: 150px;
+      transform: translateX(-50%);
+      image-rendering: pixelated;
+      filter: drop-shadow(5px 5px 0 #30251f55);
+    }
+
+    .pixel-character svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      shape-rendering: crispEdges;
+    }
+
+    .game-panel {
+      padding: clamp(14px, 3vw, 22px);
+      border: 4px solid var(--pixel-border);
+      background: #fffdf6;
+      box-shadow: 5px 5px 0 #34251f33;
+    }
+
+    .dialogue {
+      min-height: 58px;
+      margin: 12px 0;
+      padding: 12px;
+      border: 3px solid #756050;
+      background: #fff3df;
+      line-height: 1.55;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .choice, .main-button, .hall-link {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 44px;
+      padding: 10px 13px;
+      border: 3px solid var(--pixel-border);
+      color: var(--ink);
+      background: #fff;
+      font-weight: bold;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #34251f55;
+      transition: transform .12s, box-shadow .12s, background .12s;
+    }
+
+    .choice:hover, .main-button:hover, .hall-link:hover {
+      transform: translateY(-2px);
+      background: #fff0f5;
+      box-shadow: 0 6px 0 #34251f55;
+    }
+
+    .choice:active, .main-button:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #34251f55;
+    }
+
+    .main-button {
+      background: #ffdc72;
+    }
+
+    .evidence {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 2px dashed #b8a894;
+    }
+
+    .evidence-title {
+      width: 100%;
+      margin: 0;
+      font-weight: bold;
+    }
+
+    .evidence-chip {
+      padding: 7px 9px;
+      border: 2px solid #4f8e49;
+      background: #e6f5d8;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .toast {
+      min-height: 24px;
+      margin: 12px 0 0;
+      color: #a33e5a;
+      font-weight: bold;
+    }
+
+    .ending {
+      padding: 20px;
+      border: 4px solid #46302c;
+      background: #fff0ad;
+      animation: reveal .7s ease both;
+    }
+
+    .key {
+      display: inline-block;
+      margin: 10px 0;
+      padding: 10px 14px;
+      border: 3px solid #76521d;
+      background: #ffe478;
+      font-weight: bold;
+    }
+
+    .hall-link { margin-top: 16px; }
+
+    .confetti {
+      position: fixed;
+      z-index: 5;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .confetti span {
+      position: absolute;
+      top: -30px;
+      left: var(--x);
+      font-size: 25px;
+      animation: fall 3.5s linear var(--delay) forwards;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(640deg); }
+    }
+
+    @keyframes reveal {
+      from { opacity: 0; transform: scale(.94); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 8px; }
+      .game { border-width: 3px; }
+      .topbar { padding: 9px; font-size: 13px; }
+      .pixel-character { width: 88px; height: 120px; }
+      .choices { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<script src="musique.js"></script>
+<body>
+  <main class="game">
+    <header class="topbar">
+      <span class="phone-title">📱 TÉLÉPHONE TROUVÉ</span>
+      <span class="battery">●●●  98 %</span>
+    </header>
+
+    <section class="screen">
+      <div class="pixel-scene" aria-hidden="true">
+        <div class="pixel-sun"></div>
+        <div class="bench">
+          <div class="bench-back"></div>
+          <div class="bench-seat"></div>
+          <div class="bench-leg left"></div>
+          <div class="bench-leg right"></div>
+        </div>
+        <div class="gift"></div>
+        <div class="pixel-character" id="sprite"></div>
+      </div>
+
+      <section class="game-panel" id="gamePanel" aria-live="polite"></section>
+      <div class="evidence" id="evidence"></div>
+      <p class="toast" id="toast" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <script>
+    // Empêche le hall de considérer l'enquête comme terminée
+    // avant que le joueur ait résolu l'affaire.
+    if (localStorage.getItem("ekin-page-in-progress") === "0") {
+      localStorage.removeItem("ekin-page-in-progress");
+    }
+
+    const panel = document.getElementById("gamePanel");
+    const evidenceBox = document.getElementById("evidence");
+    const toast = document.getElementById("toast");
+    const sprite = document.getElementById("sprite");
+
+    const found = new Set();
+    const examined = new Set();
+    const visitedPlaces = new Set();
+    const questioned = new Set();
+
+    let stage = "intro";
+    let selectedCharacter = null;
+
+    const people = {
+      Emma: {
+        hair: "#c94e36",
+        hairExtra: `
+          <rect x="25" y="13" width="12" height="12" fill="#e3744c"/>
+          <rect x="65" y="10" width="12" height="13" fill="#e3744c"/>
+          <rect x="18" y="30" width="9" height="16" fill="#c94e36"/>
+          <rect x="75" y="28" width="9" height="17" fill="#c94e36"/>`,
+        eyes: "#75482d",
+        face: "#f3c5a7",
+        clothes: "#e86c8d",
+        dialogue: "« Je prépare quelque chose pour quelqu’un qui adore la musique. Mais chut, je n’ai rien dit ! »"
+      },
+      Céline: {
+        hair: "#68432f",
+        hairExtra: `
+          <rect x="20" y="18" width="12" height="65" fill="#68432f"/>
+          <rect x="68" y="18" width="12" height="65" fill="#68432f"/>`,
+        eyes: "#49372c",
+        face: "#f1c4a6",
+        clothes: "#7995d1",
+        dialogue: "« Le ruban cachait une petite partie du prénom. Je n’ai lu que “...kin”. »"
+      },
+      Kiara: {
+        hair: "#785039",
+        hairExtra: `
+          <rect x="19" y="21" width="12" height="42" fill="#785039"/>
+          <rect x="69" y="21" width="12" height="42" fill="#785039"/>`,
+        eyes: "#4a9a57",
+        face: "#efbd9e",
+        clothes: "#e6ae59",
+        dialogue: "« Dans la salle des fêtes, j’ai vu des décorations et un morceau de bannière : “Joyeux anniv…” »"
+      }
+    };
+
+    function characterSvg(person) {
+      return `
+        <svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="29" y="106" width="17" height="27" fill="#68452f"/>
+          <rect x="55" y="106" width="17" height="27" fill="#68452f"/>
+          <rect x="24" y="129" width="25" height="8" fill="#53362a"/>
+          <rect x="52" y="129" width="25" height="8" fill="#53362a"/>
+          <rect x="22" y="64" width="58" height="48" fill="${person.clothes}"/>
+          <rect x="14" y="71" width="12" height="29" fill="${person.face}"/>
+          <rect x="76" y="71" width="12" height="29" fill="${person.face}"/>
+          <rect x="29" y="18" width="42" height="48" fill="${person.face}"/>
+          <rect x="21" y="15" width="58" height="22" fill="${person.hair}"/>
+          <rect x="17" y="27" width="13" height="48" fill="${person.hair}"/>
+          <rect x="70" y="27" width="13" height="48" fill="${person.hair}"/>
+          ${person.hairExtra}
+          <rect x="35" y="39" width="7" height="5" fill="${person.eyes}"/>
+          <rect x="59" y="39" width="7" height="5" fill="${person.eyes}"/>
+          <rect x="45" y="54" width="14" height="4" fill="#b96061"/>
+          <rect x="44" y="68" width="14" height="13" fill="#fff3df"/>
+          <rect x="47" y="72" width="8" height="10" fill="#ee6c8d"/>
+        </svg>`;
+    }
+
+    function catSvg() {
+      return `
+        <svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="25" y="37" width="50" height="44" fill="#17171c"/>
+          <rect x="20" y="24" width="17" height="24" fill="#17171c"/>
+          <rect x="63" y="24" width="17" height="24" fill="#17171c"/>
+          <rect x="34" y="52" width="7" height="6" fill="#ffe788"/>
+          <rect x="59" y="52" width="7" height="6" fill="#ffe788"/>
+          <rect x="47" y="64" width="7" height="5" fill="#e9879b"/>
+          <rect x="31" y="78" width="13" height="35" fill="#17171c"/>
+          <rect x="57" y="78" width="13" height="35" fill="#17171c"/>
+          <rect x="21" y="107" width="27" height="11" fill="#17171c"/>
+          <rect x="55" y="107" width="27" height="11" fill="#17171c"/>
+          <rect x="69" y="84" width="20" height="8" fill="#17171c"/>
+          <rect x="82" y="76" width="8" height="12" fill="#17171c"/>
+        </svg>`;
+    }
+
+    function setSprite(name) {
+      if (name === "Le chat") {
+        sprite.innerHTML = catSvg();
+      } else if (people[name]) {
+        sprite.innerHTML = characterSvg(people[name]);
+      } else {
+        sprite.innerHTML = "";
+      }
+    }
+
+    function updateEvidence() {
+      if (found.size === 0) {
+        evidenceBox.innerHTML = "<p class='evidence-title'>🗒️ Carnet d’indices : vide</p>";
+        return;
+      }
+
+      evidenceBox.innerHTML =
+        "<p class='evidence-title'>🗒️ Carnet d’indices</p>" +
+        [...found].map((clue) =>
+          `<span class="evidence-chip">✓ ${clue}</span>`
+        ).join("");
+    }
+
+    function button(label, action, extraClass = "choice") {
+      return `<button class="${extraClass}" type="button" data-action="${action}">${label}</button>`;
+    }
+
+    function renderIntro() {
+      stage = "intro";
+      setSprite("");
+      panel.innerHTML = `
+        <h1>📱 Téléphone perdu</h1>
+        <p>Tu trouves un téléphone oublié sur un banc. L’écran s’allume tout seul.</p>
+        <div class="dialogue">« Une boîte attend sa propriétaire. Trouve à qui elle appartient avant minuit… »</div>
+        <p>Une photo pixelisée du parc s’affiche. Un cadeau est posé près du banc.</p>
+        ${button("▶ Lancer l’enquête", "start", "main-button")}
+      `;
+    }
+
+    function renderInspect() {
+      stage = "inspect";
+      setSprite("");
+      panel.innerHTML = `
+        <h2>Étape 1 — Examiner le cadeau</h2>
+        <p>Que veux-tu observer ? Examine les trois éléments pour continuer.</p>
+        <div class="choices">
+          ${button("🎁 Le papier cadeau", "inspect-paper")}
+          ${button("🎀 Le ruban", "inspect-ribbon")}
+          ${button("📦 Secouer la boîte", "inspect-shake")}
+        </div>
+        <p class="toast">Éléments examinés : ${examined.size} / 3</p>
+        ${examined.size === 3 ? button("Continuer →", "places", "main-button") : ""}
+      `;
+    }
+
+    function inspect(action) {
+      if (examined.has(action)) return;
+
+      examined.add(action);
+
+      if (action === "inspect-paper") {
+        found.add("Papier décoré d’étoiles, de notes de musique et de petits chats.");
+        toast.textContent = "Le papier semble choisi spécialement pour quelqu’un.";
+      } else if (action === "inspect-ribbon") {
+        found.add("Sous le ruban, un bout d’étiquette indique « ...i ».");
+        toast.textContent = "Le prénom est déchiré. Il ne reste que « ...i ».";
+      } else {
+        toast.textContent = "Clac, clac… Rien d’utile. Mais la boîte est bien remplie !";
+      }
+
+      updateEvidence();
+      renderInspect();
+    }
+
+    function renderPlaces() {
+      stage = "places";
+      setSprite("");
+      panel.innerHTML = `
+        <h2>Étape 2 — Fouiller les lieux</h2>
+        <p>Le téléphone affiche trois endroits à explorer. Fouille-les tous.</p>
+        <div class="choices">
+          ${button("📚 La bibliothèque", "place-library")}
+          ${button("🎉 La salle des fêtes", "place-hall")}
+          ${button("🌳 Le jardin", "place-garden")}
+        </div>
+        <p class="toast">Lieux explorés : ${visitedPlaces.size} / 3</p>
+        ${visitedPlaces.size === 3 ? button("Interroger les témoins →", "suspects", "main-button") : ""}
+      `;
+    }
+
+    function visitPlace(action) {
+      if (visitedPlaces.has(action)) return;
+      visitedPlaces.add(action);
+
+      if (action === "place-library") {
+        found.add("Dans un livre : une liste des personnes qui aiment les chats.");
+        toast.textContent = "Une liste dit : « Personnes qui aiment les chats : E… »";
+      } else if (action === "place-hall") {
+        found.add("Une bannière déchirée porte les mots « Joyeux anniv… ».");
+        toast.textContent = "La fête préparée est probablement un anniversaire.";
+      } else {
+        found.add("Près du chat : une invitation à une fête surprise.");
+        toast.textContent = "Le nom sur l’invitation est illisible, mais elle est récente.";
+      }
+
+      updateEvidence();
+      renderPlaces();
+    }
+
+    function renderSuspects() {
+      stage = "suspects";
+      setSprite(selectedCharacter || "");
+      panel.innerHTML = `
+        <h2>Étape 3 — Interroger les témoins</h2>
+        <p>Parle à tout le monde. Le chat aussi a peut-être vu quelque chose.</p>
+        <div class="choices">
+          ${button("👩🏻 Emma", "talk-Emma")}
+          ${button("👩🏼 Céline", "talk-Céline")}
+          ${button("👩🏽 Kiara", "talk-Kiara")}
+          ${button("🐈 Le chat", "talk-cat")}
+        </div>
+        <div class="dialogue" id="witnessDialogue">
+          ${selectedCharacter ? getDialogue(selectedCharacter) : "Choisis un témoin pour lui parler."}
+        </div>
+        <p class="toast">Témoins interrogés : ${questioned.size} / 4</p>
+        ${questioned.size === 4 ? button("Faire une déduction →", "deduction", "main-button") : ""}
+      `;
+    }
+
+    function getDialogue(name) {
+      if (name === "Le chat") {
+        return "« Miaou. J’ai vu les filles cacher quelque chose… et j’ai reniflé du papier avec des chats. »";
+      }
+      return people[name].dialogue;
+    }
+
+    function question(name) {
+      selectedCharacter = name;
+      questioned.add(name);
+
+      if (name === "Emma") {
+        found.add("Emma parle d’une personne qui adore la musique.");
+      } else if (name === "Céline") {
+        found.add("Céline a lu « ...kin » sur le morceau d’étiquette.");
+      } else if (name === "Kiara") {
+        found.add("Kiara a aperçu une bannière d’anniversaire.");
+      } else {
+        found.add("Le chat a vu les filles cacher le cadeau.");
+      }
+
+      updateEvidence();
+      renderSuspects();
+    }
+
+    function renderDeduction() {
+      stage = "deduction";
+      setSprite("");
+      panel.innerHTML = `
+        <h2>Étape 4 — À qui appartient le cadeau ?</h2>
+        <p>Relis les indices du carnet. Qui aime les chats et la musique, et fête bientôt son anniversaire ?</p>
+        <div class="choices">
+          ${button("Emma", "guess-Emma")}
+          ${button("Céline", "guess-Céline")}
+          ${button("Kiara", "guess-Kiara")}
+          ${button("Ekin", "guess-Ekin")}
+          ${button("Le chat", "guess-cat")}
+        </div>
+        <p class="toast" id="guessFeedback"></p>
+      `;
+    }
+
+    function finishGame() {
+      stage = "ending";
+
+      // Le hall ne donnera la prochaine clé qu'après la bonne réponse.
+      localStorage.setItem("ekin-page-in-progress", "0");
+
+      setSprite("Emma");
+      panel.innerHTML = `
+        <div class="ending">
+          <h1>🎉 Bonne réponse !</h1>
+          <p>Les lumières s’allument. Emma, Céline et Kiara sortent de leur cachette.</p>
+          <div class="dialogue">
+            <strong>Emma :</strong> « Enfin ! »<br>
+            <strong>Céline :</strong> « L’enquête a pris beaucoup trop de temps. »<br>
+            <strong>Kiara :</strong> « Je l’avais trouvé depuis le début. »<br>
+            <em>Personne ne la croit.</em>
+          </div>
+          <h2>🎁 Le cadeau est pour Ekin !</h2>
+          <p>Le cadeau n’était ni perdu ni volé. Il attendait simplement sa propriétaire.</p>
+          <p><strong>Verdict : c’est l’anniversaire d’Ekin.</strong></p>
+          <p>🏆 Succès débloqué : <strong>Le Mystère du Cadeau Sans Nom</strong></p>
+          <div class="key">🗝️ Tu as trouvé la clé du Dossier secret !</div>
+          <br>
+          <a class="hall-link" href="accueil.html">← Retour au hall</a>
+        </div>
+      `;
+
+      const confetti = document.getElementById("confetti");
+      for (let i = 0; i < 55; i++) {
+        const piece = document.createElement("span");
+        piece.textContent = ["🎉", "✨", "💖", "🎊"][i % 4];
+        piece.style.setProperty("--x", `${Math.random() * 100}%`);
+        piece.style.setProperty("--delay", `${Math.random() * 1.5}s`);
+        confetti.appendChild(piece);
+      }
+    }
+
+    panel.addEventListener("click", (event) => {
+      const target = event.target.closest("[data-action]");
+      if (!target) return;
+
+      const action = target.dataset.action;
+
+      if (action === "start") renderInspect();
+      else if (action.startsWith("inspect-")) inspect(action);
+      else if (action === "places") renderPlaces();
+      else if (action.startsWith("place-")) visitPlace(action);
+      else if (action === "suspects") renderSuspects();
+      else if (action.startsWith("talk-")) {
+        const name = action === "talk-cat" ? "Le chat" : action.slice(5);
+        question(name);
+      } else if (action === "deduction") renderDeduction();
+      else if (action.startsWith("guess-")) {
+        const guess = action.slice(6);
+        if (guess === "Ekin") {
+          finishGame();
+        } else {
+          const feedback = document.getElementById("guessFeedback");
+          feedback.textContent = "❌ Pas encore ! Compare les indices : chats, musique, « ...i » et anniversaire.";
+        }
+      }
+    });
+
+    renderIntro();
+    updateEvidence();
+  </script>
+</body>
+</html>
